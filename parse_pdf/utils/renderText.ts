@@ -47,12 +47,10 @@ const processText = (
 };
 
 export const renderText = (textContent: any) => {
-  let result: any[] = [];
-
+  let result: any = [];
   if (!textContent.items.length) {
-    return result;
+    return {};
   }
-
   const init = {
     parsedScript: [],
     text: "",
@@ -60,5 +58,6 @@ export const renderText = (textContent: any) => {
     prevX: -999
   };
   result = textContent.items.reduce(processText, init);
+
   return result;
 };

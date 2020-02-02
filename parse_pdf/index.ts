@@ -5,6 +5,8 @@ import { renderText } from "./utils/renderText";
 
 let dataBuffer = fs.readFileSync("../script_assets/script1.pdf");
 
+const finalJson: any = [];
+
 // default render callback
 const renderPage = async (pageData: any): Promise<string> => {
   //check documents https://mozilla.github.io/pdf.js/
@@ -15,9 +17,17 @@ const renderPage = async (pageData: any): Promise<string> => {
     disableCombineTextItems: false
   };
 
-  const renderResult = await pageData
+  const renderResult: any = await pageData
     .getTextContent(render_options)
     .then(renderText);
+
+  // console.log(JSON.stringify(renderResult, null, 4));
+
+  renderResult.parsedScript.forEach((textObj: string) => {
+    if (Object.keys(textObj).length) {
+      finalJson.push(JSON.stringify(renderResult, null, 4));
+    }
+  });
 
   return JSON.stringify(renderResult, null, 4);
 };
@@ -26,9 +36,17 @@ let options = {
   pagerender: renderPage
 };
 
-pdf(dataBuffer, options).then((data: any) => {
-  if (data.text.length == 0) {
-    data.text += "coco";
-  }
-  fs.writeFileSync("./results/script.json", data.text);
-});
+const jiji = () => {
+  pdf(dataBuffer, options).then(() => {
+    fs.writeFileSync("./results/script.json", [finalJson]);
+
+    // if (IsJsonString(data.text)) {
+    //   finalJson.push(...JSON.parse(data.text));
+    // } else {
+    //   console.log(data.text);
+    //   fs.writeFileSync("./results/script.json", data.text);
+    // }
+  });
+};
+jiji();
+// fs.writeFileSync("./results/script.json", JSON.stringify(finalJson));
