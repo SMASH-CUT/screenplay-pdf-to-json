@@ -17,7 +17,9 @@ const processText = (
     prevY = y;
 
     parsedScript.push({ text });
-    text = item.str;
+    console.log(item.str);
+    text = "";
+    parsedScript.push({ text: item.str });
   } else {
     // if width different
     if (prevX != x) {
