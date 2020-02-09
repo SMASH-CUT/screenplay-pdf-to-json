@@ -1,41 +1,44 @@
 const pdf = require("pdf-parse");
 import * as fs from "fs";
 
-import { renderText } from "./utils/renderText";
+import { determineLines } from "./utils/renderText";
+import { parseScriptTypes } from "./utils/parseType";
+import { renderOptions } from "./config/renderOptions";
 
 let dataBuffer = fs.readFileSync("../script_assets/script.pdf");
 
-const finalJson: any = [];
+let fooBar: any[] = [];
 
-// default render callback
 const renderPage = async (pageData: any): Promise<string> => {
-  //check documents https://mozilla.github.io/pdf.js/
-  let render_options = {
-    //replaces all occurrences of whitespace with standard spaces (0x20). The default value is `false`.
-    normalizeWhitespace: true,
-    //do not attempt to combine same line TextItem's. The default value is `false`.
-    disableCombineTextItems: false
+  // organize screenplay text into individual LINES
+  const parseScriptLines: any = await pageData
+    .getTextContent(renderOptions)
+    .then(determineLines);
+
+  const initialAggregate = {
+    stichedText: "",
+    previousX: -999,
+    previousY: parseScriptLines[0].y,
+    finalJson: []
   };
 
-  const renderResult: any = await pageData
-    .getTextContent(render_options)
-    .then(renderText);
+  // organize screenplay text into individual TYPES
+  const { finalJson } = parseScriptLines.reduce(
+    parseScriptTypes,
+    initialAggregate
+  );
 
-  // console.log(JSON.stringify(renderResult, null, 4));
-
-  renderResult.parsedScript.forEach((textObj: any) => {
-    if (Object.keys(textObj).length && textObj.text.trim() !== "") {
-      finalJson.push(JSON.stringify(textObj, null, 4));
-    }
-  });
-
-  return JSON.stringify(renderResult, null, 4);
+  fooBar.push(finalJson);
+  return JSON.stringify(finalJson, null, 4);
 };
 
 let options = {
   pagerender: renderPage
 };
 
-pdf(dataBuffer, options).then(() => {
-  fs.writeFileSync("./results/script.json", [finalJson]);
+fs.truncate("results/analyze.json", 0, function() {
+  console.log("done");
+  pdf(dataBuffer, options).then(() => {
+    fs.writeFileSync("./results/script.json", JSON.stringify(fooBar, null, 4));
+  });
 });

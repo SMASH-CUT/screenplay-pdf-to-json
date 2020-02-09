@@ -1,54 +1,32 @@
+import * as fs from "fs";
+
 interface IProcessText {
   parsedScript: any;
   text: any;
-  prevY: any;
-  prevX: any;
+  previousY: any;
+  previousX: any;
 }
 
-const processText = (
-  { parsedScript, text, prevY, prevX }: IProcessText,
+const determineLine = (
+  { parsedScript, text, previousY, previousX }: IProcessText,
   item: any
 ) => {
   const x = item.transform[4];
   const y = item.transform[5];
 
-  if (item.str.includes("EXT.") || item.str.includes("INT.")) {
-    prevX = x;
-    prevY = y;
-
-    parsedScript.push({ text });
-    console.log(item.str);
-    text = "";
-    parsedScript.push({ text: item.str });
+  if (y === previousY) {
+    text += item.str;
   } else {
-    // if width different
-    if (prevX != x) {
-      // and y different, than different section
-      if (prevY != y) {
-        prevX = x;
-        prevY = y;
-
-        parsedScript.push({ text });
-        text = item.str;
-      }
-
-      // and y same, than same section
-      else {
-        prevX = Math.min(x, prevX);
-        text += item.str;
-      }
-    }
-    // if width same and y different, then same section
-    else if (prevY != y) {
-      prevY = y;
-      text += item.str;
-    }
+    parsedScript.push({ text, x: previousX, y: previousY });
+    text = item.str;
+    previousX = x;
+    previousY = y;
   }
 
-  return { parsedScript, text, prevY, prevX };
+  return { parsedScript, text, previousY, previousX };
 };
 
-export const renderText = (textContent: any) => {
+export const determineLines = (textContent: any) => {
   let result: any = [];
   if (!textContent.items.length) {
     return {};
@@ -56,10 +34,20 @@ export const renderText = (textContent: any) => {
   const init = {
     parsedScript: [],
     text: "",
-    prevY: textContent.items[0].transform[5],
-    prevX: -999
+    previousY: textContent.items[0].transform[5],
+    previousX: -999
   };
-  result = textContent.items.reduce(processText, init);
 
-  return result;
+  fs.appendFile(
+    "results/analyze.json",
+    JSON.stringify(textContent.items, null, 4),
+    err => {
+      if (err) throw err;
+      // console.log('The "data to append" was appended to file!');
+    }
+  );
+
+  result = textContent.items.reduce(determineLine, init);
+
+  return result.parsedScript;
 };
