@@ -34,13 +34,13 @@ const parseType = (
       previousX = x;
       previousY = y;
 
-      if (cleanScript(stitchedText)) {
+      if (!stitchedText.length || cleanScript(text)) {
         finalJson.push({ text: stitchedText });
       }
 
       stitchedText = [text];
       if (checkSlugline(text) || checkTransition(text)) {
-        if (cleanScript(stitchedText)) {
+        if (!stitchedText.length || cleanScript(text)) {
           finalJson.push({ text: [text] });
         }
         stitchedText = [];
@@ -50,24 +50,25 @@ const parseType = (
     // and y same, than same section
     else {
       previousX = Math.min(x, previousX);
-      stitchedText.push(text.trim());
+      if (cleanScript(text)) {
+        stitchedText.push(text.trim());
+      }
     }
   }
   // different line. if width same and y different, then same section
   else if (previousY != y) {
     if (checkSlugline(text) || checkTransition(text)) {
-      if (cleanScript(stitchedText)) {
+      if (!stitchedText.length && cleanScript(text)) {
         finalJson.push({ text: stitchedText });
       }
-      if (cleanScript(stitchedText)) {
+      if (!stitchedText.length || cleanScript(text)) {
         finalJson.push({ text: [text] });
       }
       stitchedText = [];
     } else {
-      // if (text.includes("FADE UP")) {
-      //   console.log(text);
-      // }
-      stitchedText.push(text.trim());
+      if (cleanScript(text)) {
+        stitchedText.push(text.trim());
+      }
     }
     previousY = y;
   }
@@ -75,11 +76,8 @@ const parseType = (
   return { finalJson, currentTextObj, stitchedText, previousX, previousY };
 };
 
-const cleanScript = (text: string[]) => {
-  if (!text.length || (text.length === 1 && text[0].includes("CONTINUED"))) {
-    return false;
-  }
-  return true;
+const cleanScript = (text: string) => {
+  return !(text.split(" ").length === 1 && text.includes("CONTINUED"));
 };
 
 export const parseScriptTypes = (
