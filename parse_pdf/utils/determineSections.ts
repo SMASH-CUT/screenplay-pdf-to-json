@@ -34,14 +34,14 @@ const parseType = (
       previousX = x;
       previousY = y;
 
-      if (!stitchedText.length || cleanScript(text)) {
+      if (stitchedText.length && cleanScript(text)) {
         finalJson.push({ text: stitchedText });
       }
 
       stitchedText = [text];
       if (checkSlugline(text) || checkTransition(text)) {
-        if (!stitchedText.length || cleanScript(text)) {
-          finalJson.push({ text: [text] });
+        if (text.trim() !== "" || cleanScript(text)) {
+          finalJson.push({ text: [text.trim()] });
         }
         stitchedText = [];
       }
@@ -58,11 +58,9 @@ const parseType = (
   // different line. if width same and y different, then same section
   else if (previousY != y) {
     if (checkSlugline(text) || checkTransition(text)) {
-      if (!stitchedText.length && cleanScript(text)) {
+      if (stitchedText.length && cleanScript(text)) {
         finalJson.push({ text: stitchedText });
-      }
-      if (!stitchedText.length || cleanScript(text)) {
-        finalJson.push({ text: [text] });
+        finalJson.push({ text: [text.trim()] });
       }
       stitchedText = [];
     } else {
@@ -77,7 +75,11 @@ const parseType = (
 };
 
 const cleanScript = (text: string) => {
-  return !(text.split(" ").length === 1 && text.includes("CONTINUED"));
+  return !(
+    text.split(" ").length === 1 &&
+    text.includes("CONTINUED:") &&
+    text.trim() !== ""
+  );
 };
 
 export const parseScriptTypes = (

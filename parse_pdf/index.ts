@@ -1,8 +1,8 @@
 const pdf = require("pdf-parse");
 import * as fs from "fs";
 
-import { determineLines } from "./utils/renderText";
-import { parseScriptTypes } from "./utils/parseType";
+import { determineLines } from "./utils/determineLines";
+import { parseScriptTypes } from "./utils/determineSections";
 import { renderOptions } from "./config/renderOptions";
 
 let dataBuffer = fs.readFileSync("../script_assets/script1.pdf");
