@@ -5,9 +5,10 @@ import { determineLines } from "./utils/renderText";
 import { parseScriptTypes } from "./utils/parseType";
 import { renderOptions } from "./config/renderOptions";
 
-let dataBuffer = fs.readFileSync("../script_assets/script.pdf");
+let dataBuffer = fs.readFileSync("../script_assets/script1.pdf");
 
 let fooBar: any[] = [];
+let debug: any[] = [];
 
 const renderPage = async (pageData: any): Promise<string> => {
   // organize screenplay text into individual LINES
@@ -15,8 +16,11 @@ const renderPage = async (pageData: any): Promise<string> => {
     .getTextContent(renderOptions)
     .then(determineLines);
 
+  debug.push(parseScriptLines);
+
+  // organize screenplay text into individual TYPES
   const initialAggregate = {
-    stichedText: "",
+    stitchedText: [],
     previousX: -999,
     previousY: parseScriptLines[0].y,
     finalJson: []
@@ -40,5 +44,9 @@ fs.truncate("results/analyze.json", 0, function() {
   console.log("done");
   pdf(dataBuffer, options).then(() => {
     fs.writeFileSync("./results/script.json", JSON.stringify(fooBar, null, 4));
+    fs.writeFileSync(
+      "./results/scriptDebug.json",
+      JSON.stringify(debug, null, 4)
+    );
   });
 });

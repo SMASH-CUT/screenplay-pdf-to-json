@@ -1,6 +1,7 @@
 export enum transitionsEnum {
   FADE_IN = "FADE IN",
   FADE_OUT = "FADE OUT",
+  FADE_UP = "FADE UP",
   JUMP_CUT = "JUMP CUT",
   MATCH_CUT = "MATCH CUT",
   SMASH_CUT = "SMASH MATCH CUT",

@@ -2,7 +2,7 @@ import { transitionsEnum } from "../enums/transitionsEnum";
 
 interface IParseScriptTypes {
   finalJson: any[];
-  stichedText: string;
+  stitchedText: string[];
   previousX: number;
   previousY: number;
 }
@@ -20,7 +20,7 @@ const checkSlugline = (text: string) => {
 const parseType = (
   finalJson: any[],
   currentTextObj: any,
-  stichedText: string,
+  stitchedText: string[],
   previousX: number,
   previousY: number
 ) => {
@@ -28,62 +28,82 @@ const parseType = (
   let { text } = currentTextObj;
 
   // if width different
-  if (previousX != x) {
+  if (Math.round(Math.abs(previousX - x))) {
     // and y different, than different section
     if (previousY != y) {
       previousX = x;
       previousY = y;
 
-      finalJson.push({ text: stichedText });
-      stichedText = text;
+      if (cleanScript(stitchedText)) {
+        finalJson.push({ text: stitchedText });
+      }
+
+      stitchedText = [text];
+      if (checkSlugline(text) || checkTransition(text)) {
+        if (cleanScript(stitchedText)) {
+          finalJson.push({ text: [text] });
+        }
+        stitchedText = [];
+      }
     }
 
     // and y same, than same section
     else {
       previousX = Math.min(x, previousX);
-      stichedText += text;
+      stitchedText.push(text.trim());
     }
   }
-  // if width same and y different, then same section
+  // different line. if width same and y different, then same section
   else if (previousY != y) {
     if (checkSlugline(text) || checkTransition(text)) {
-      previousX = x;
-      previousY = y;
-
-      finalJson.push({ text: stichedText });
-      finalJson.push({ text });
-      stichedText = "";
+      if (cleanScript(stitchedText)) {
+        finalJson.push({ text: stitchedText });
+      }
+      if (cleanScript(stitchedText)) {
+        finalJson.push({ text: [text] });
+      }
+      stitchedText = [];
     } else {
-      previousY = y;
-      stichedText += text;
+      // if (text.includes("FADE UP")) {
+      //   console.log(text);
+      // }
+      stitchedText.push(text.trim());
     }
+    previousY = y;
   }
 
-  return { finalJson, currentTextObj, stichedText, previousX, previousY };
+  return { finalJson, currentTextObj, stitchedText, previousX, previousY };
+};
+
+const cleanScript = (text: string[]) => {
+  if (!text.length || (text.length === 1 && text[0].includes("CONTINUED"))) {
+    return false;
+  }
+  return true;
 };
 
 export const parseScriptTypes = (
-  { finalJson, stichedText, previousX, previousY }: IParseScriptTypes,
+  { finalJson, stitchedText, previousX, previousY }: IParseScriptTypes,
   currentTextObj: any
 ) => {
   if (
     !currentTextObj.hasOwnProperty("text") ||
     currentTextObj.text.trim() === ""
   ) {
-    return { stichedText, previousX, previousY };
+    return { stitchedText, previousX, previousY };
   }
 
   const currResult = parseType(
     finalJson,
     currentTextObj,
-    stichedText,
+    stitchedText,
     previousX,
     previousY
   );
   return {
     finalJson: currResult.finalJson,
     currentTextObj: currResult.currentTextObj,
-    stichedText: currResult.stichedText,
+    stitchedText: currResult.stitchedText,
     previousX: currResult.previousX,
     previousY: currResult.previousY
   };

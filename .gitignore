@@ -2,6 +2,14 @@ script_assets/
 parse_pdf/results/
 .DS_Store
 
+face_recognition/
+doccano/
+pySceneDetect/
+ScreenPy/
+script_sub_sync/
+source_face_recognition/
+subtitle_test/
+
 # Logs
 logs
 *.log
