@@ -2,11 +2,11 @@ const pdf = require("pdf-parse");
 import * as fs from "fs";
 
 import { determineLines } from "./utils/determineLines";
-import { parseScriptTypes } from "./utils/determineSections";
+import { determineSections } from "./utils/determineSections";
 import { renderOptions } from "./config/renderOptions";
 // import { determineTypes } from "./utils/determineTypes";
 
-let dataBuffer = fs.readFileSync("../script_assets/script1.pdf");
+let dataBuffer = fs.readFileSync("../script_assets/marriage_story.pdf");
 
 let fooBar: any[] = [];
 let debug: any[] = [];
@@ -28,7 +28,7 @@ const renderPage = async (pageData: any): Promise<string> => {
 
   // organize screenplay into SECTIONS
   let { finalJson } = parseScriptLines.reduce(
-    parseScriptTypes,
+    determineSections,
     initialSectionAggregation
   );
 

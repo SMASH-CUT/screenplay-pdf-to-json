@@ -18,11 +18,7 @@ const checkSlugline = (text: string) => {
 };
 
 const cleanScript = (text: string) => {
-  return !(
-    text.split(" ").length === 1 &&
-    text.includes("CONTINUED:") &&
-    text.trim() !== ""
-  );
+  return !(text.includes("CONTINUED:") || text.trim() === "");
 };
 
 const parseType = (
@@ -45,8 +41,11 @@ const parseType = (
       if (stitchedText.length) {
         finalJson.push({ text: stitchedText });
       }
+      stitchedText = [];
 
-      stitchedText = [text.trim()];
+      if (cleanScript(text)) {
+        stitchedText = [text.trim()];
+      }
 
       if (checkSlugline(text) || checkTransition(text)) {
         finalJson.push({ text: [text.trim()] });
@@ -75,7 +74,19 @@ const parseType = (
       stitchedText = [];
     } else {
       if (cleanScript(text)) {
-        stitchedText.push(text.trim());
+        const lastSentence =
+          stitchedText.length > 0 ? stitchedText[stitchedText.length - 1] : "";
+        if (
+          lastSentence.length > 0 &&
+          !(checkSlugline(lastSentence) && checkTransition(lastSentence)) &&
+          lastSentence.charAt(lastSentence.length - 1) != "." &&
+          lastSentence.charAt(lastSentence.length - 1) != ")" &&
+          lastSentence.charAt(lastSentence.length - 1) != "-"
+        ) {
+          stitchedText[stitchedText.length - 1] += text.trim();
+        } else {
+          stitchedText.push(text.trim());
+        }
       }
     }
     previousY = y;
@@ -84,7 +95,7 @@ const parseType = (
   return { finalJson, currentTextObj, stitchedText, previousX, previousY };
 };
 
-export const parseScriptTypes = (
+export const determineSections = (
   { finalJson, stitchedText, previousX, previousY }: IParseScriptTypes,
   currentTextObj: any
 ) => {
