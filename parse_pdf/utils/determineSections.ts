@@ -43,13 +43,11 @@ const parseType = (
       }
       stitchedText = [];
 
-      if (cleanScript(text)) {
-        stitchedText = [text.trim()];
-      }
-
       if (checkSlugline(text) || checkTransition(text)) {
         finalJson.push({ text: [text.trim()] });
         stitchedText = [];
+      } else if (cleanScript(text)) {
+        stitchedText = [text.trim()];
       }
     }
 
@@ -113,6 +111,7 @@ export const determineSections = (
     previousX,
     previousY
   );
+
   return {
     finalJson: currResult.finalJson,
     currentTextObj: currResult.currentTextObj,

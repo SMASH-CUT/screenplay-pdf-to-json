@@ -8,7 +8,8 @@ import { renderOptions } from "./config/renderOptions";
 
 let dataBuffer = fs.readFileSync("../script_assets/marriage_story.pdf");
 
-let fooBar: any[] = [];
+let scriptSections: any[] = [];
+let lastSegment: string[] = [];
 let debug: any[] = [];
 
 const renderPage = async (pageData: any): Promise<string> => {
@@ -27,7 +28,7 @@ const renderPage = async (pageData: any): Promise<string> => {
   };
 
   // organize screenplay into SECTIONS
-  let { finalJson } = parseScriptLines.reduce(
+  let { finalJson, stitchedText } = parseScriptLines.reduce(
     determineSections,
     initialSectionAggregation
   );
@@ -43,10 +44,11 @@ const renderPage = async (pageData: any): Promise<string> => {
   //   initialTypeAggregation
   // );
 
-  // fooBar = [...fooBar, ...finalParse, segment];
+  // scriptSections = [...scriptSections, ...finalParse, segment];
   // return JSON.stringify(finalParse, null, 4);
 
-  fooBar = [...fooBar, ...finalJson];
+  lastSegment = stitchedText;
+  scriptSections = [...scriptSections, ...finalJson];
   fs.appendFileSync(
     "./results/script.json",
     JSON.stringify(finalJson, null, 4)
@@ -61,7 +63,10 @@ let options = {
 fs.truncate("results/analyze.json", 0, function() {
   console.log("done");
   pdf(dataBuffer, options).then(() => {
-    fs.writeFileSync("./results/script.json", JSON.stringify(fooBar, null, 4));
+    fs.writeFileSync(
+      "./results/script.json",
+      JSON.stringify([...scriptSections, lastSegment], null, 4)
+    );
     fs.writeFileSync(
       "./results/scriptDebug.json",
       JSON.stringify(debug, null, 4)
