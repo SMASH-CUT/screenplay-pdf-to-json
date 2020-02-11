@@ -4,6 +4,7 @@ import * as fs from "fs";
 import { determineLines } from "./utils/determineLines";
 import { parseScriptTypes } from "./utils/determineSections";
 import { renderOptions } from "./config/renderOptions";
+// import { determineTypes } from "./utils/determineTypes";
 
 let dataBuffer = fs.readFileSync("../script_assets/script1.pdf");
 
@@ -11,28 +12,45 @@ let fooBar: any[] = [];
 let debug: any[] = [];
 
 const renderPage = async (pageData: any): Promise<string> => {
-  // organize screenplay text into individual LINES
+  // organize screenplay into LINES
   const parseScriptLines: any = await pageData
     .getTextContent(renderOptions)
     .then(determineLines);
 
   debug.push(parseScriptLines);
 
-  // organize screenplay text into individual TYPES
-  const initialAggregate = {
+  const initialSectionAggregation = {
     stitchedText: [],
     previousX: -999,
     previousY: parseScriptLines[0].y,
     finalJson: []
   };
 
-  // organize screenplay text into individual TYPES
-  const { finalJson } = parseScriptLines.reduce(
+  // organize screenplay into SECTIONS
+  let { finalJson } = parseScriptLines.reduce(
     parseScriptTypes,
-    initialAggregate
+    initialSectionAggregation
   );
 
-  fooBar.push(finalJson);
+  // const initialTypeAggregation = {
+  //   finalParse: [],
+  //   segment: {}
+  // };
+
+  // // organize screenplay into TYPES
+  // const { finalParse, segment } = finalJson.reduce(
+  //   determineTypes,
+  //   initialTypeAggregation
+  // );
+
+  // fooBar = [...fooBar, ...finalParse, segment];
+  // return JSON.stringify(finalParse, null, 4);
+
+  fooBar = [...fooBar, ...finalJson];
+  fs.appendFileSync(
+    "./results/script.json",
+    JSON.stringify(finalJson, null, 4)
+  );
   return JSON.stringify(finalJson, null, 4);
 };
 

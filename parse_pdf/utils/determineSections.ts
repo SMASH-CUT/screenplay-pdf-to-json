@@ -17,6 +17,14 @@ const checkSlugline = (text: string) => {
   return text.includes("EXT.") || text.includes("INT.");
 };
 
+const cleanScript = (text: string) => {
+  return !(
+    text.split(" ").length === 1 &&
+    text.includes("CONTINUED:") &&
+    text.trim() !== ""
+  );
+};
+
 const parseType = (
   finalJson: any[],
   currentTextObj: any,
@@ -34,15 +42,14 @@ const parseType = (
       previousX = x;
       previousY = y;
 
-      if (stitchedText.length && cleanScript(text)) {
+      if (stitchedText.length) {
         finalJson.push({ text: stitchedText });
       }
 
-      stitchedText = [text];
+      stitchedText = [text.trim()];
+
       if (checkSlugline(text) || checkTransition(text)) {
-        if (text.trim() !== "" || cleanScript(text)) {
-          finalJson.push({ text: [text.trim()] });
-        }
+        finalJson.push({ text: [text.trim()] });
         stitchedText = [];
       }
     }
@@ -55,11 +62,14 @@ const parseType = (
       }
     }
   }
-  // different line. if width same and y different, then same section
+  // different line
   else if (previousY != y) {
+    // if heading/transition, push current stitch and push heading/transition immediately
     if (checkSlugline(text) || checkTransition(text)) {
-      if (stitchedText.length && cleanScript(text)) {
+      if (stitchedText.length) {
         finalJson.push({ text: stitchedText });
+      }
+      if (cleanScript(text)) {
         finalJson.push({ text: [text.trim()] });
       }
       stitchedText = [];
@@ -72,14 +82,6 @@ const parseType = (
   }
 
   return { finalJson, currentTextObj, stitchedText, previousX, previousY };
-};
-
-const cleanScript = (text: string) => {
-  return !(
-    text.split(" ").length === 1 &&
-    text.includes("CONTINUED:") &&
-    text.trim() !== ""
-  );
 };
 
 export const parseScriptTypes = (

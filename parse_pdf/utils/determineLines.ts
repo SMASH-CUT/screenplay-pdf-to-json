@@ -1,5 +1,3 @@
-import * as fs from "fs";
-
 interface IProcessText {
   parsedScript: any;
   text: any;
@@ -37,15 +35,6 @@ export const determineLines = (textContent: any) => {
     previousY: textContent.items[0].transform[5],
     previousX: -999
   };
-
-  fs.appendFile(
-    "results/analyze.json",
-    JSON.stringify(textContent.items, null, 4),
-    err => {
-      if (err) throw err;
-      // console.log('The "data to append" was appended to file!');
-    }
-  );
 
   result = textContent.items.reduce(determineLine, init);
 
