@@ -15,29 +15,20 @@ const determineHeading = ({ text: textArr }: ITextObj) => {
   });
 };
 
-// const determineSceneDirection = (textObj: ITextObj) => {
-//   return true;
-// };
-// const determineDialogue = (textObj: ITextObj) => {
-//   return true;
-// };
-// const determineTransition = (textObj: ITextObj) => {
-//   return true;
-// };
-
 const extractHeading = ({ text }: ITextObj): any => {
   let curr = text[0].split(".");
+  let location = "";
+  let time = "";
+
   const region = curr[0];
-  curr = curr[1].split("-");
-  const location = curr.slice(0, -1);
-  const time = curr[curr.length - 1];
+  if (curr.length > 1) {
+    curr = curr[1].split("-");
+    location = curr.slice(0, -1)[0];
+    time = curr[curr.length - 1];
+  }
 
   return { region, location, time };
 };
-
-// const extractSceneDirection = (textObj: ITextObj): any => {
-//   return true;
-// };
 
 export const determineTypes = (
   { finalParse, segment }: IParseScriptTypes,

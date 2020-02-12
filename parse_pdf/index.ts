@@ -4,7 +4,7 @@ import * as fs from "fs";
 import { determineLines } from "./utils/determineLines";
 import { determineSections } from "./utils/determineSections";
 import { renderOptions } from "./config/renderOptions";
-// import { determineTypes } from "./utils/determineTypes";
+import { determineTypes } from "./utils/determineTypes";
 
 let dataBuffer = fs.readFileSync("../script_assets/marriage_story.pdf");
 
@@ -32,27 +32,8 @@ const renderPage = async (pageData: any): Promise<string> => {
     determineSections,
     initialSectionAggregation
   );
-
-  // const initialTypeAggregation = {
-  //   finalParse: [],
-  //   segment: {}
-  // };
-
-  // // organize screenplay into TYPES
-  // const { finalParse, segment } = finalJson.reduce(
-  //   determineTypes,
-  //   initialTypeAggregation
-  // );
-
-  // scriptSections = [...scriptSections, ...finalParse, segment];
-  // return JSON.stringify(finalParse, null, 4);
-
   lastSegment = stitchedText;
   scriptSections = [...scriptSections, ...finalJson];
-  fs.appendFileSync(
-    "./results/script.json",
-    JSON.stringify(finalJson, null, 4)
-  );
   return JSON.stringify(finalJson, null, 4);
 };
 
@@ -60,16 +41,28 @@ let options = {
   pagerender: renderPage
 };
 
-fs.truncate("results/analyze.json", 0, function() {
-  console.log("done");
-  pdf(dataBuffer, options).then(() => {
-    fs.writeFileSync(
-      "./results/script.json",
-      JSON.stringify([...scriptSections, lastSegment], null, 4)
-    );
-    fs.writeFileSync(
-      "./results/scriptDebug.json",
-      JSON.stringify(debug, null, 4)
-    );
-  });
+pdf(dataBuffer, options).then(() => {
+  const initialTypeAggregation = {
+    finalParse: [],
+    segment: {
+      nest: []
+    }
+  };
+
+  // organize screenplay into TYPES
+  const { finalParse, segment } = [
+    ...scriptSections,
+    { text: lastSegment }
+  ].reduce(determineTypes, initialTypeAggregation);
+
+  scriptSections = [...finalParse, segment];
+
+  fs.writeFileSync(
+    "./results/script.json",
+    JSON.stringify(scriptSections, null, 4)
+  );
+  fs.writeFileSync(
+    "./results/scriptDebug.json",
+    JSON.stringify(debug, null, 4)
+  );
 });
