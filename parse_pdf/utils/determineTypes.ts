@@ -1,4 +1,5 @@
 import { headingEnum } from "../enums/headingEnum";
+import { timeEnum } from "../enums/timeEnum";
 
 interface IParseScriptTypes {
   finalParse: any[];
@@ -15,16 +16,25 @@ const determineHeading = ({ text: textArr }: ITextObj) => {
   });
 };
 
+const determineDay = (text: string) => {
+  return Object.values(timeEnum).some((transition: any) => {
+    return text.includes(transition);
+  });
+};
+
 const extractHeading = ({ text }: ITextObj): any => {
   let curr = text[0].split(".");
-  let location = "";
+  let location: any = [];
   let time = "";
 
   const region = curr[0];
   if (curr.length > 1) {
     curr = curr[1].split("-");
-    location = curr.slice(0, -1)[0];
-    time = curr[curr.length - 1];
+    location = curr;
+    if (determineDay(curr[curr.length - 1])) {
+      console.log(curr);
+      time = curr[curr.length - 1];
+    }
   }
 
   return { region, location, time };
