@@ -32,19 +32,19 @@ const parseType = (
   let { text } = currentTextObj;
 
   // if width different
-  if (Math.round(Math.abs(previousX - x))) {
+  if (Math.round(Math.abs(previousX - x)) > 0) {
     // and y different, than different section
     if (previousY != y) {
+      if (stitchedText.length) {
+        finalJson.push({ text: stitchedText, x: previousX, y: previousY });
+      }
+
       previousX = x;
       previousY = y;
-
-      if (stitchedText.length) {
-        finalJson.push({ text: stitchedText });
-      }
       stitchedText = [];
 
       if (checkSlugline(text) || checkTransition(text)) {
-        finalJson.push({ text: [text.trim()] });
+        finalJson.push({ text: [text.trim()], x, y });
         stitchedText = [];
       } else if (cleanScript(text)) {
         stitchedText = [text.trim()];
@@ -64,10 +64,10 @@ const parseType = (
     // if heading/transition, push current stitch and push heading/transition immediately
     if (checkSlugline(text) || checkTransition(text)) {
       if (stitchedText.length) {
-        finalJson.push({ text: stitchedText });
+        finalJson.push({ text: stitchedText, x: previousX, y: previousY });
       }
       if (cleanScript(text)) {
-        finalJson.push({ text: [text.trim()] });
+        finalJson.push({ text: [text.trim()], x, y });
       }
       stitchedText = [];
     } else {

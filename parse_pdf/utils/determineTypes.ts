@@ -8,6 +8,8 @@ interface IParseScriptTypes {
 
 interface ITextObj {
   text: string[];
+  x: number;
+  y: number;
 }
 
 const determineHeading = ({ text: textArr }: ITextObj) => {
@@ -28,13 +30,21 @@ const extractHeading = ({ text }: ITextObj): any => {
   let time = "";
 
   const region = curr[0];
+
   if (curr.length > 1) {
-    curr = curr[1].split("-");
-    location = curr;
-    if (determineDay(curr[curr.length - 1])) {
-      console.log(curr);
-      time = curr[curr.length - 1];
+    let divider = ".";
+    const dayOrNot = determineDay(curr[curr.length - 1]);
+
+    if (curr.length === 2) {
+      divider = ",";
+      const some = curr.some(el => el.includes("-"));
+      if (some) {
+        divider = "-";
+      }
+      curr = curr[1].split(divider);
     }
+    location = dayOrNot ? curr.slice(0, -1) : curr;
+    time = dayOrNot ? curr[curr.length - 1] : "";
   }
 
   return { region, location, time };
@@ -44,6 +54,7 @@ export const determineTypes = (
   { finalParse, segment }: IParseScriptTypes,
   currentTextObj: any
 ) => {
+  console.log(currentTextObj);
   if (determineHeading(currentTextObj)) {
     // if new heading, then push the current segment to finalParse
     finalParse.push(segment);

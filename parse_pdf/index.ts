@@ -9,7 +9,11 @@ import { determineTypes } from "./utils/determineTypes";
 let dataBuffer = fs.readFileSync("../script_assets/marriage_story.pdf");
 
 let scriptSections: any[] = [];
-let lastSegment: string[] = [];
+let lastSection = {
+  text: "",
+  x: 0,
+  y: 0
+};
 let debug: any[] = [];
 
 const renderPage = async (pageData: any): Promise<string> => {
@@ -28,11 +32,17 @@ const renderPage = async (pageData: any): Promise<string> => {
   };
 
   // organize screenplay into SECTIONS
-  let { finalJson, stitchedText } = parseScriptLines.reduce(
-    determineSections,
-    initialSectionAggregation
-  );
-  lastSegment = stitchedText;
+  let {
+    finalJson,
+    stitchedText,
+    previousX,
+    previousY
+  } = parseScriptLines.reduce(determineSections, initialSectionAggregation);
+  lastSection = {
+    text: stitchedText,
+    x: previousX,
+    y: previousY
+  };
   scriptSections = [...scriptSections, ...finalJson];
   return JSON.stringify(finalJson, null, 4);
 };
@@ -50,10 +60,10 @@ pdf(dataBuffer, options).then(() => {
   };
 
   // organize screenplay into TYPES
-  const { finalParse, segment } = [
-    ...scriptSections,
-    { text: lastSegment }
-  ].reduce(determineTypes, initialTypeAggregation);
+  const { finalParse, segment } = [...scriptSections, lastSection].reduce(
+    determineTypes,
+    initialTypeAggregation
+  );
 
   scriptSections = [...finalParse, segment];
 
