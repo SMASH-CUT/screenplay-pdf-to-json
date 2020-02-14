@@ -5,6 +5,7 @@ import { determineLines } from "./utils/determineLines";
 import { determineSections } from "./utils/determineSections";
 import { renderOptions } from "./config/renderOptions";
 import { determineTypes } from "./utils/determineTypes";
+import { determineLineTrends } from "./utils/determineLineTrends";
 
 let dataBuffer = fs.readFileSync("../script_assets/marriage_story.pdf");
 
@@ -52,21 +53,11 @@ let options = {
 };
 
 pdf(dataBuffer, options).then(() => {
-  const initialTypeAggregation = {
-    finalParse: [],
-    segment: {
-      nest: []
-    }
-  };
+  scriptSections = [...scriptSections, lastSection];
+  const lineTrends = determineLineTrends(scriptSections);
 
   // organize screenplay into TYPES
-  const { finalParse, segment } = [...scriptSections, lastSection].reduce(
-    determineTypes,
-    initialTypeAggregation
-  );
-
-  scriptSections = [...finalParse, segment];
-
+  scriptSections = determineTypes(lineTrends, scriptSections);
   fs.writeFileSync(
     "./results/script.json",
     JSON.stringify(scriptSections, null, 4)
