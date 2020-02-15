@@ -8,7 +8,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "pdf-parse": "^1.1.1"
+    "pdf.js-extract": "^0.1.4"
   },
   "devDependencies": {
     "@types/node": "^13.7.0",

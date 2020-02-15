@@ -1,42 +1,36 @@
-interface IProcessText {
-  parsedScript: any;
-  text: any;
-  previousY: any;
-  previousX: any;
-}
+import { PDFExtract, PDFExtractOptions } from "pdf.js-extract";
 
-const determineLine = (
-  { parsedScript, text, previousY, previousX }: IProcessText,
-  item: any
-) => {
-  const x = item.transform[4];
-  const y = item.transform[5];
+import { IFinalParse } from "../utils/interfaces/IFinalParse";
 
-  if (y === previousY) {
-    text += item.str;
-  } else {
-    parsedScript.push({ text, x: previousX, y: previousY });
-    text = item.str;
-    previousX = x;
-    previousY = y;
-  }
-
-  return { parsedScript, text, previousY, previousX };
+const pdfExtract = new PDFExtract();
+const options: PDFExtractOptions = {
+  normalizeWhitespace: false,
+  disableCombineTextItems: false
 };
 
-export const determineLines = (textContent: any) => {
-  let result: any = [];
-  if (!textContent.items.length) {
-    return {};
+export const determineLines = async (filePath: string) => {
+  const data = await pdfExtract.extract(filePath, options);
+
+  const finalParse: IFinalParse[] = [];
+  try {
+    let text = "";
+    let previousY = data.pages[0].content[0].y;
+    let previousX = -999;
+
+    data.pages.forEach(page => {
+      page.content.forEach(({ x, y, str, height, width }: any) => {
+        if (y === previousY) {
+          text += str;
+        } else {
+          finalParse.push({ text, x: previousX, y: previousY, height, width });
+          text = str;
+          previousX = x;
+          previousY = y;
+        }
+      });
+    });
+  } catch (error) {
+    console.log(error);
   }
-  const init = {
-    parsedScript: [],
-    text: "",
-    previousY: textContent.items[0].transform[5],
-    previousX: -999
-  };
-
-  result = textContent.items.reduce(determineLine, init);
-
-  return result.parsedScript;
+  return finalParse;
 };

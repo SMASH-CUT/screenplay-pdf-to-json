@@ -1,11 +1,5 @@
 import { transitionsEnum } from "../enums/transitionsEnum";
-
-interface IParseScriptTypes {
-  finalJson: any[];
-  stitchedText: string[];
-  previousX: number;
-  previousY: number;
-}
+import { IFinalParse } from "../utils/interfaces/IFinalParse";
 
 const checkTransition = (text: string) => {
   return Object.values(transitionsEnum).some((transition: any) => {
@@ -22,21 +16,34 @@ const cleanScript = (text: string) => {
 };
 
 const parseType = (
-  finalJson: any[],
+  finalJson: any,
   currentTextObj: any,
   stitchedText: string[],
   previousX: number,
   previousY: number
 ) => {
-  const { x, y } = currentTextObj;
+  const { x, y, height, width } = currentTextObj;
   let { text } = currentTextObj;
+
+  if (
+    !currentTextObj.hasOwnProperty("text") ||
+    currentTextObj.text.trim() === ""
+  ) {
+    return { finalJson, stitchedText, previousX, previousY };
+  }
 
   // if width different
   if (Math.round(Math.abs(previousX - x)) > 0) {
     // and y different, than different section
     if (previousY != y) {
       if (stitchedText.length) {
-        finalJson.push({ text: stitchedText, x: previousX, y: previousY });
+        finalJson.push({
+          text: stitchedText,
+          x: previousX,
+          y: previousY,
+          height,
+          width
+        });
       }
 
       previousX = x;
@@ -44,7 +51,7 @@ const parseType = (
       stitchedText = [];
 
       if (checkSlugline(text) || checkTransition(text)) {
-        finalJson.push({ text: [text.trim()], x, y });
+        finalJson.push({ text: [text.trim()], x, y, height, width });
         stitchedText = [];
       } else if (cleanScript(text)) {
         stitchedText = [text.trim()];
@@ -64,10 +71,16 @@ const parseType = (
     // if heading/transition, push current stitch and push heading/transition immediately
     if (checkSlugline(text) || checkTransition(text)) {
       if (stitchedText.length) {
-        finalJson.push({ text: stitchedText, x: previousX, y: previousY });
+        finalJson.push({
+          text: stitchedText,
+          x: previousX,
+          y: previousY,
+          height,
+          width
+        });
       }
       if (cleanScript(text)) {
-        finalJson.push({ text: [text.trim()], x, y });
+        finalJson.push({ text: [text.trim()], x, y, height, width });
       }
       stitchedText = [];
     } else {
@@ -90,33 +103,25 @@ const parseType = (
     previousY = y;
   }
 
-  return { finalJson, currentTextObj, stitchedText, previousX, previousY };
+  return { finalJson, stitchedText, previousX, previousY };
 };
 
-export const determineSections = (
-  { finalJson, stitchedText, previousX, previousY }: IParseScriptTypes,
-  currentTextObj: any
-) => {
-  if (
-    !currentTextObj.hasOwnProperty("text") ||
-    currentTextObj.text.trim() === ""
-  ) {
-    return { stitchedText, previousX, previousY };
+export const determineSections = (finalParse: IFinalParse[]) => {
+  let stitchedText: string[] = [];
+  let previousX = -999;
+  let previousY = finalParse[0].y;
+  let finalJson: IFinalParse[] = [];
+
+  for (let index = 0; index < finalParse.length; index++) {
+    const currentTextObj = finalParse[index];
+    ({ finalJson, stitchedText, previousX, previousY } = parseType(
+      finalJson,
+      currentTextObj,
+      stitchedText,
+      previousX,
+      previousY
+    ));
   }
 
-  const currResult = parseType(
-    finalJson,
-    currentTextObj,
-    stitchedText,
-    previousX,
-    previousY
-  );
-
-  return {
-    finalJson: currResult.finalJson,
-    currentTextObj: currResult.currentTextObj,
-    stitchedText: currResult.stitchedText,
-    previousX: currResult.previousX,
-    previousY: currResult.previousY
-  };
+  return finalJson;
 };

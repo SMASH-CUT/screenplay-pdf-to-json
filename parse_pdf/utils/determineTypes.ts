@@ -31,6 +31,9 @@ const determineCharacter = ({ text: textArr }: ISegment) => {
     return false;
   }
   if (character.length === 1) {
+    if (character[0].includes(".")) {
+      return false;
+    }
     return true;
   }
 
