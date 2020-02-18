@@ -62,10 +62,10 @@ class PdfParser:
             layout = device.get_result()
 
             # extract text from this object
-            self.parse_obj(layout._objs)
+            self.parse_obj(layout._objs, page.mediabox[3])
             i += 1
 
-    def parse_obj(self, lt_objs):
+    def parse_obj(self, lt_objs, pageHeight):
 
         # loop over the object list
         for obj in lt_objs:
@@ -73,17 +73,17 @@ class PdfParser:
                 # print(obj.bbox)
                 self.jsonScript[-1]["content"].append({
                     "x": obj.bbox[0],
-                    "y": obj.bbox[1],
+                    "y": pageHeight - obj.bbox[1],
                     "text": obj.get_text().replace('\n', '')
                 })
             # if it's a textbox, also recurse
             if isinstance(obj, pdfminer.layout.LTTextBoxHorizontal):
-                self.parse_obj(obj._objs)
+                self.parse_obj(obj._objs, pageHeight)
 
             # if it's a container, recurse
             elif isinstance(obj, pdfminer.layout.LTFigure):
                 print('is figure')
-                self.parse_obj(obj._objs)
+                self.parse_obj(obj._objs, pageHeight)
 
 
 p1 = PdfParser('../../script_assets/spiderverse.pdf')
