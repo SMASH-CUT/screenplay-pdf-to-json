@@ -1,32 +1,47 @@
 import { PDFExtract, PDFExtractOptions } from "pdf.js-extract";
 
-import { IFinalParse } from "../utils/interfaces/IFinalParse";
+import { IFinalParse, ILineParse } from "../utils/interfaces/IFinalParse";
 
 const pdfExtract = new PDFExtract();
 const options: PDFExtractOptions = {
-  normalizeWhitespace: false,
-  disableCombineTextItems: false
+  normalizeWhitespace: true,
+  disableCombineTextItems: false,
+  verbosity: 1
 };
 
 export const determineLines = async (filePath: string) => {
   const data = await pdfExtract.extract(filePath, options);
 
   const finalParse: IFinalParse[] = [];
+
   try {
     let text = "";
     let previousY = data.pages[0].content[0].y;
     let previousX = -999;
+    let page = 0;
 
-    data.pages.forEach(page => {
-      page.content.forEach(({ x, y, str, height, width }: any) => {
+    data.pages.forEach(currPage => {
+      page = currPage.pageInfo.num;
+      const lineParse: ILineParse[] = [];
+      currPage.content.forEach(({ x, y, str, height, width }: any) => {
         if (y === previousY) {
           text += str;
         } else {
-          finalParse.push({ text, x: previousX, y: previousY, height, width });
+          lineParse.push({
+            text,
+            x: previousX,
+            y: previousY,
+            height,
+            width
+          });
           text = str;
           previousX = x;
           previousY = y;
         }
+      });
+      finalParse.push({
+        page,
+        content: lineParse
       });
     });
   } catch (error) {

@@ -8,7 +8,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "pdf.js-extract": "^0.1.4"
+    "@types/axios": "^0.14.0",
+    "@types/pdfjs-dist": "^2.1.3",
+    "axios": "^0.19.2",
+    "form-data": "^3.0.0",
+    "pdf.js-extract": "^0.1.4",
+    "pdf2json": "^1.1.8",
+    "pdfjs-dist": "^2.2.228"
   },
   "devDependencies": {
     "@types/node": "^13.7.0",

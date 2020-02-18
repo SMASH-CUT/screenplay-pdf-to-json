@@ -3,7 +3,8 @@
 import * as fs from "fs";
 
 import { determineLines } from "./utils/determineLines";
-import { determineSections } from "./utils/determineSections";
+// import { sortLine } from "./utils/sortLine";
+// import { determineSections } from "./utils/determineSections";
 // import { renderOptions } from "./config/renderOptions";
 // import { determineTypes } from "./utils/determineTypes";
 // import { determineLineTrends } from "./utils/determineLineTrends";
@@ -72,8 +73,10 @@ import { determineSections } from "./utils/determineSections";
 (async () => {
   const filePath = "../script_assets/spiderverse.pdf";
   let finalParse = await determineLines(filePath);
+  // finalParse = sortLine(finalParse);
+
   // organize screenplay into SECTIONS
-  finalParse = determineSections(finalParse);
+  // finalParse = determineSections(finalParse);
   // let lastSection = {
   //   text: stitchedText,
   //   x: previousX,
