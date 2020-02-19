@@ -22,7 +22,7 @@ const parseType = (
   previousX: number,
   previousY: number
 ) => {
-  const { x, y, height, width } = currentTextObj;
+  const { x, y } = currentTextObj;
   let { text } = currentTextObj;
 
   if (
@@ -40,9 +40,7 @@ const parseType = (
         finalJson.push({
           text: stitchedText,
           x: previousX,
-          y: previousY,
-          height,
-          width
+          y: previousY
         });
       }
 
@@ -51,7 +49,7 @@ const parseType = (
       stitchedText = [];
 
       if (checkSlugline(text) || checkTransition(text)) {
-        finalJson.push({ text: [text.trim()], x, y, height, width });
+        finalJson.push({ text: [text.trim()], x, y });
         stitchedText = [];
       } else if (cleanScript(text)) {
         stitchedText = [text.trim()];
@@ -74,13 +72,11 @@ const parseType = (
         finalJson.push({
           text: stitchedText,
           x: previousX,
-          y: previousY,
-          height,
-          width
+          y: previousY
         });
       }
       if (cleanScript(text)) {
-        finalJson.push({ text: [text.trim()], x, y, height, width });
+        finalJson.push({ text: [text.trim()], x, y });
       }
       stitchedText = [];
     } else {

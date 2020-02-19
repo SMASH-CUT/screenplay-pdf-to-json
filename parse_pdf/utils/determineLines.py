@@ -6,17 +6,18 @@ from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdfparser import PDFParser
 from pdfminer.converter import PDFPageAggregator
 from pdfminer.pdfdevice import PDFDevice
-import json
 import io
 import pdfminer
 import unicodedata
 
 
-class PdfParser:
+class ParsePdfClass:
     def __init__(self, path):
         self.path = path
 
-    jsonScript = []
+    jsonScript = {
+        "pdf": []
+    }
 
     def parsepdf(self):
         # Open a PDF file.
@@ -40,7 +41,7 @@ class PdfParser:
 
         # BEGIN LAYOUT ANALYSIS
         # Set parameters for analysis.
-        laparams = LAParams(word_margin=100, char_margin=100, line_margin=10, boxes_flow=1)
+        laparams = LAParams(word_margin=100, boxes_flow=0.8)
 
         # Create a PDF page aggregator object.
         device = PDFPageAggregator(rsrcmgr, laparams=laparams)
@@ -52,7 +53,7 @@ class PdfParser:
         i = 0
         # loop over all pages in the document
         for page in PDFPage.create_pages(document):
-            self.jsonScript.append({
+            self.jsonScript["pdf"].append({
                 "page": i,
                 "content": []
             }) 
@@ -71,7 +72,7 @@ class PdfParser:
         for obj in lt_objs:
             if isinstance(obj, pdfminer.layout.LTTextLine):
                 # print(obj.bbox)
-                self.jsonScript[-1]["content"].append({
+                self.jsonScript["pdf"][-1]["content"].append({
                     "x": obj.bbox[0],
                     "y": pageHeight - obj.bbox[1],
                     "text": obj.get_text().replace('\n', '')
@@ -84,11 +85,3 @@ class PdfParser:
             elif isinstance(obj, pdfminer.layout.LTFigure):
                 print('is figure')
                 self.parse_obj(obj._objs, pageHeight)
-
-
-p1 = PdfParser('../../script_assets/spiderverse.pdf')
-
-p1.parsepdf()
-# file1 = io.open("result.json", "w", encoding='utf-8')
-file1 = open('result.json', 'w+')
-json.dump(p1.jsonScript, file1, indent=4, ensure_ascii=False)
