@@ -1,4 +1,5 @@
 import json
+import re
 
 
 class GroupSections:
@@ -33,7 +34,7 @@ class GroupSections:
         return "EXT." in text or "INT." in text
 
     def cleanScript(self, text):
-        return "CONTINUED:" not in text or "(CONTINUED)" not in text or text.trip == ""
+        return "CONTINUED:" not in text or "(CONTINUED)" not in text or text.strip() == ""
 
     def groupSections(self):
         scriptSections = []
@@ -45,7 +46,11 @@ class GroupSections:
             currentPageSections = []
             scriptSections.append({"page": page["page"], "content": []})
 
-            for content in page["content"]:
+            for i, content in enumerate(page["content"]):
+                if re.search(r"^\d{1,3}\.$", content["text"].strip()):
+                    previousY = page["content"][i+1]["y"] if len(
+                        page["content"]) > 1 and len(page["content"]) > i + 1 else -999
+                    continue
                 x = content["x"]
                 y = content["y"]
                 text = content["text"]
