@@ -1,11 +1,12 @@
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.pdfpage import PDFPage
 from pdfminer.converter import XMLConverter, HTMLConverter, TextConverter
-from pdfminer.layout import LAParams, LTTextBox 
+from pdfminer.layout import LAParams, LTTextBox
 from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdfparser import PDFParser
 from pdfminer.converter import PDFPageAggregator
 from pdfminer.pdfdevice import PDFDevice
+
 import io
 import pdfminer
 import unicodedata
@@ -14,6 +15,8 @@ import unicodedata
 class ParsePdfClass:
     def __init__(self, path):
         self.path = path
+
+    pageWidth = 0
 
     jsonScript = {
         "pdf": []
@@ -46,18 +49,20 @@ class ParsePdfClass:
         # Create a PDF page aggregator object.
         device = PDFPageAggregator(rsrcmgr, laparams=laparams)
 
-            # Create a PDF interpreter object.
+        # Create a PDF interpreter object.
         interpreter = PDFPageInterpreter(rsrcmgr, device)
-
 
         i = 0
         # loop over all pages in the document
         for page in PDFPage.create_pages(document):
+            if i == 0:
+                self.pageWidth = page.mediabox[3]
+
             self.jsonScript["pdf"].append({
                 "page": i,
                 "content": []
-            }) 
-            
+            })
+
             # read the page into a layout object
             interpreter.process_page(page)
             layout = device.get_result()
