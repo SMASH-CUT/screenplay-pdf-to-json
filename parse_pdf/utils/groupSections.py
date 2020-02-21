@@ -47,6 +47,7 @@ class GroupSections:
             scriptSections.append({"page": page["page"], "content": []})
 
             for i, content in enumerate(page["content"]):
+
                 if re.search(r"^\d{1,3}\.$", content["text"].strip()):
                     previousY = page["content"][i+1]["y"] if len(
                         page["content"]) > 1 and len(page["content"]) > i + 1 else -999
@@ -110,6 +111,12 @@ class GroupSections:
                         else:
                             currentPageSections.append(text.strip())
                     previousY = y
+            if len(currentPageSections) > 0:
+                scriptSections[-1]["content"].append({
+                    "text": currentPageSections,
+                    "x": previousX,
+                    "y": previousY
+                })
 
         # print(scriptSections)
         self.newScript = scriptSections
