@@ -18,7 +18,7 @@ class ParsePdfClass:
 
     pageWidth = 0
 
-    jsonScript = {
+    newScript = {
         "pdf": []
     }
 
@@ -44,7 +44,7 @@ class ParsePdfClass:
 
         # BEGIN LAYOUT ANALYSIS
         # Set parameters for analysis.
-        laparams = LAParams(word_margin=100, boxes_flow=0.8)
+        laparams = LAParams(word_margin=100, boxes_flow=1, line_margin=0.1)
 
         # Create a PDF page aggregator object.
         device = PDFPageAggregator(rsrcmgr, laparams=laparams)
@@ -58,7 +58,7 @@ class ParsePdfClass:
             if i == 0:
                 self.pageWidth = page.mediabox[3]
 
-            self.jsonScript["pdf"].append({
+            self.newScript["pdf"].append({
                 "page": i,
                 "content": []
             })
@@ -77,7 +77,7 @@ class ParsePdfClass:
         for obj in lt_objs:
             if isinstance(obj, pdfminer.layout.LTTextLine):
                 # print(obj.bbox)
-                self.jsonScript["pdf"][-1]["content"].append({
+                self.newScript["pdf"][-1]["content"].append({
                     "x": obj.bbox[0],
                     "y": pageHeight - obj.bbox[1],
                     "text": obj.get_text().replace('\n', '')

@@ -78,6 +78,7 @@ const extractHeading = ({ text }: ISegment, lineTrends: any): any => {
       curr = curr[1].split(divider);
       location = dayOrNot ? curr.slice(0, -1) : curr;
     }
+
     time = dayOrNot ? curr[curr.length - 1] : "";
   }
 

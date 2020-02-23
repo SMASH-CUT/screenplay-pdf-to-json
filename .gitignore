@@ -1,6 +1,7 @@
 script_assets/
 parse_pdf/results/
 .DS_Store
+*result*
 
 face_recognition/
 doccano/
