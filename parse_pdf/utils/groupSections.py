@@ -86,7 +86,7 @@ class GroupSections:
 
                             if self.checkSlugline(text) or self.checkTransition(text):
                                 scriptSections[-1]["content"].append(
-                                    {"text": content["text"], "x": x, "y": y})
+                                    {"text": [content["text"]], "x": x, "y": y})
                                 currentPageSections = []
                             elif (self.cleanScript(text)):
                                 currentPageSections = [text.strip()]
