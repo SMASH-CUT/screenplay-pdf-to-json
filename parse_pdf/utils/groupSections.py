@@ -48,17 +48,29 @@ class GroupSections:
 
             for i, content in enumerate(page["content"]):
 
+                # check if pag enumber
                 if re.search(r"^\d{1,3}\.$", content["text"].strip()):
                     previousY = page["content"][i+1]["y"] if len(
                         page["content"]) > 1 and len(page["content"]) > i + 1 else -999
                     continue
+
                 x = content["x"]
                 y = content["y"]
                 text = content["text"]
 
                 if "dialogue2" in content:
+                    if len(currentPageSections):
+                        scriptSections[-1]["content"].append({
+                            "text": currentPageSections,
+                            "x": previousX,
+                            "y": previousY
+                        })
                     scriptSections[-1]["content"].append(content)
 
+                    currentPageSections = []
+                    previousX = x
+                    previousY = y
+                    continue
                 if round(abs(previousX - x)) > 0:
                     if previousY != y:
                         if len(currentPageSections) > 0:
@@ -78,11 +90,14 @@ class GroupSections:
                                 currentPageSections = []
                             elif (self.cleanScript(text)):
                                 currentPageSections = [text.strip()]
+                        else:
+                            currentPageSections = [text.strip()]
                     else:
                         previousX = min(x, previousX)
                         if self.cleanScript(text):
                             currentPageSections.append(content["text"])
                 else:
+
                     if self.checkSlugline(text) or self.checkTransition(text):
                         if len(currentPageSections):
                             scriptSections[-1]["content"].append({
@@ -106,11 +121,13 @@ class GroupSections:
                             lastSentence[len(lastSentence) - 1] != ")" and
                             lastSentence[len(lastSentence) - 1] != "-"
                         ):
-                            currentPageSections[len(currentPageSections) -
-                                                1] += text.strip()
+                            # add space when appending
+                            currentPageSections[len(currentPageSections) - 1] = "{} {}".format(
+                                currentPageSections[len(currentPageSections) - 1].strip(), text.strip())
                         else:
                             currentPageSections.append(text.strip())
                     previousY = y
+
             if len(currentPageSections) > 0:
                 scriptSections[-1]["content"].append({
                     "text": currentPageSections,
