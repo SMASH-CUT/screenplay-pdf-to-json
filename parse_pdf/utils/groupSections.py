@@ -40,44 +40,64 @@ class GroupSections:
         scriptSections = []
 
         for page in self.script:
-            previousX = -1
-            previousY = page["content"][0]["y"] if len(
-                page["content"]) > 1 else -999
+            previousX = page["content"][0]["segment"]["x"] if len(
+                page["content"]) > 1 else -1
+            previousY = page["content"][0]["segment"]["y"] if len(
+                page["content"]) > 1 else -1
             currentPageSections = []
             scriptSections.append({"page": page["page"], "content": []})
 
             for i, content in enumerate(page["content"]):
 
                 # check if pag enumber
-                if re.search(r"^\d{1,3}\.$", content["text"].strip()):
-                    previousY = page["content"][i+1]["y"] if len(
+                if re.search(r"^\d{1,3}\.$", content["segment"]["text"].strip()):
+                    previousY = page["content"][i+1]["segment"]["y"] if len(
                         page["content"]) > 1 and len(page["content"]) > i + 1 else -999
                     continue
 
-                x = content["x"]
-                y = content["y"]
-                text = content["text"]
+                x = content["segment"]["x"]
+                y = content["segment"]["y"]
+                text = content["segment"]["text"]
 
-                if "dialogue2" in content:
+                if "character2" in content:
                     if len(currentPageSections):
                         scriptSections[-1]["content"].append({
                             "text": currentPageSections,
                             "x": previousX,
                             "y": previousY
                         })
-                    scriptSections[-1]["content"].append(content)
+
+                    character2 = {
+                        "x": content["character2"]["x"],
+                        "y": content["character2"]["y"],
+                        "text": [content["character2"]["text"].strip()],
+                    }
+
+                    segment = {
+                        "x": x,
+                        "y": y,
+                        "text": [text.strip()]
+                    }
+
+                    scriptSections[-1]["content"].append({
+                        "segment": segment,
+                        "character2": character2
+                    })
 
                     currentPageSections = []
                     previousX = x
                     previousY = y
                     continue
+
                 if round(abs(previousX - x)) > 0:
                     if previousY != y:
                         if len(currentPageSections) > 0:
                             scriptSections[-1]["content"].append({
-                                "text": currentPageSections,
-                                "x": previousX,
-                                "y": previousY
+                                "segment": {
+                                    "text": currentPageSections,
+                                    "x": previousX,
+                                    "y": previousY
+                                }
                             })
 
                             previousX = x
@@ -85,8 +105,13 @@ class GroupSections:
                             currentPageSections = []
 
                             if self.checkSlugline(text) or self.checkTransition(text):
-                                scriptSections[-1]["content"].append(
-                                    {"text": [content["text"]], "x": x, "y": y})
+                                scriptSections[-1]["content"].append({
+                                    "segment": {
+                                        "text": [content["segment"]["text"]],
+                                        "x": x,
+                                        "y": y
+                                    }
+                                })
                                 currentPageSections = []
                             elif (self.cleanScript(text)):
                                 currentPageSections = [text.strip()]
@@ -95,21 +120,26 @@ class GroupSections:
                     else:
                         previousX = min(x, previousX)
                         if self.cleanScript(text):
-                            currentPageSections.append(content["text"])
+                            currentPageSections.append(
+                                content["segment"]["text"])
                 else:
 
                     if self.checkSlugline(text) or self.checkTransition(text):
                         if len(currentPageSections):
                             scriptSections[-1]["content"].append({
-                                "text": currentPageSections,
-                                "x": previousX,
-                                "y": previousY
+                                "segment": {
+                                    "text": currentPageSections,
+                                    "x": previousX,
+                                    "y": previousY
+                                }
                             })
                         if self.cleanScript(text):
                             scriptSections[-1]["content"].append({
-                                "text": [content["text"].strip()],
-                                "x": x,
-                                "y": y
+                                "segment": {
+                                    "text": [content["segment"]["text"].strip()],
+                                    "x": x,
+                                    "y": y
+                                }
                             })
                         currentPageSections = []
                     elif self.cleanScript(text):
@@ -130,9 +160,11 @@ class GroupSections:
 
             if len(currentPageSections) > 0:
                 scriptSections[-1]["content"].append({
-                    "text": currentPageSections,
-                    "x": previousX,
-                    "y": previousY
+                    "segment": {
+                        "text": currentPageSections,
+                        "x": previousX,
+                        "y": previousY
+                    }
                 })
 
         # print(scriptSections)

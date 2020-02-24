@@ -52,14 +52,75 @@ class GroupTypes:
             return False
         return True
 
-    def extractCharacter(self, textArr, dialogue, parenthetical):
-        split = textArr[0].split()
-        return {
-            "character": split[0],
-            "modifier": split[1] if len(split) > 1 else None,
-            "parenthetical": parenthetical if parenthetical["text"][0].strip() is not "" else None,
-            "dialogue": dialogue
+    def containsParentheticals(self, text):
+        return "(" in text and ")" in text
+
+    def containsDialogue(self, x, correctX):
+        return abs(x - correctX) <= 3
+
+    # extracts either dialogue 1 or dialogue 2 (if it's a dual dialogue)
+    def getWhichDialogue(self, segment, currentTextObj, content, i, whichDialogue):
+        character = "character1" if whichDialogue == "text" else "character2"
+
+        while i < len(content):
+            parenthetical = False
+            if whichDialogue == "text":
+                parenthetical = self.containsParentheticals(
+                    content[i][whichDialogue][0]) if whichDialogue in content[i] else False
+            else:
+                parenthetical = self.containsParentheticals(
+                    content[i][whichDialogue]["text"][0]) if whichDialogue in content[i] else False
+
+            dialogue = self.containsDialogue(
+                content[i]["x"], currentTextObj["x"])
+
+            if parenthetical or dialogue:
+                if parenthetical:
+                    segment["nest"][-1][character]["dialogue"].append({
+                        "type": "parenthetical",
+                        "text": content[i]["text"]
+                    })
+                elif dialogue:
+                    segment["nest"][-1][character]["dialogue"].append({
+                        "type": "dialogue",
+                        "text": content[i][whichDialogue]["text"]
+                    })
+            else:
+                break
+            i += 1
+        return (segment, i)
+
+    def extractCharacter(self, segment, currentTextObj, content, i):
+        split = currentTextObj["text"][0].split()
+        stitchedDialogue = {
+            "character1": {
+                "character": split[0],
+                "modifier": split[1] if len(split) > 1 else None,
+                "x": currentTextObj["x"],
+                "y": currentTextObj["y"],
+                "dialogue": []
+            }
         }
+
+        if "dialogue2" in currentTextObj:
+            split = currentTextObj["dialogue2"]["text"][0].split()
+            stitchedDialogue["character2"] = ({
+                "character": split[0],
+                "modifier": split[1] if len(split) > 1 else None,
+                "x": currentTextObj["dialogue2"]["x"],
+                "y": currentTextObj["dialogue2"]["y"],
+                "dialogue": []
+            })
+
+        segment["nest"].append(stitchedDialogue)
+
+        (segment, i) = self.getWhichDialogue(
+            segment, currentTextObj, content, i + 1, "text")
+
+        if "dialogue2" in currentTextObj:
+            (segment, i) = self.getWhichDialogue(
+                segment, currentTextObj, content, i + 1, "dialogue2")
+        return (segment, i)
 
     def extractHeader(self, text):
         curr = text[0].split(".")
@@ -86,7 +147,7 @@ class GroupTypes:
             "time": time
         }
 
-    def groupTypes(self):
+    def groupTypes(self, pageWidth):
         groupedTypes = []
         segment = {
             "region": None,
@@ -101,7 +162,6 @@ class GroupTypes:
             content = page["content"]
             while i < len(content):
                 currentTextObj = content[i]
-
                 if self.determineHeading(currentTextObj["text"]):
                     if len(segment["nest"]) > 0:
                         groupedTypes[-1]["content"].append(copy.copy(segment))
@@ -116,18 +176,9 @@ class GroupTypes:
                         "nest": []
                     }
                 if self.determineCharacter(currentTextObj["text"]):
-                    i += 1
-                    containsParentheticals = len(
-                        content[i]["text"]) == 1 and "(" in content[i]["text"][0]
-                    if containsParentheticals:
-                        segment["nest"].append(self.extractCharacter(
-                            currentTextObj["text"], content[i+1], content[i]))
-                        i += 1
-                    segment["nest"].append(self.extractCharacter(currentTextObj["text"], content[i], {
-                        "text": [""],
-                        "x": 0,
-                        "y": 0
-                    }))
+                    (segment, x) = self.extractCharacter(
+                        segment, currentTextObj, content, i)
+                    i = x
                 else:
                     segment["nest"].append(currentTextObj)
                 i += 1

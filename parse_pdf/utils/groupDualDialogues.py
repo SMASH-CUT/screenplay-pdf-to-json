@@ -14,18 +14,21 @@ class GroupDualDialogues:
                 index = round(content["y"])
                 if index in existingY:
 
-                    # determine ordering of dialogue2 and parent
-                    swap = self.newScript[-1]["content"][existingY[index]]
+                    # determine ordering of character2 and parent
+                    swap = self.newScript[-1]["content"][existingY[index]]["segment"]
                     if swap["x"] > content["x"]:
-                        self.newScript[-1]["content"][existingY[index]] = content
                         self.newScript[-1]["content"][existingY[index]
-                                                      ]["dialogue2"] = swap
+                                                      ]["segment"] = content
+                        self.newScript[-1]["content"][existingY[index]
+                                                      ]["character2"] = swap
                     else:
                         self.newScript[-1]["content"][existingY[index]
-                                                      ]["dialogue2"] = content
+                                                      ]["character2"] = content
                 else:
                     existingY[index] = len(self.newScript[-1]['content'])
-                    self.newScript[-1]["content"].append(content)
+                    self.newScript[-1]["content"].append({
+                        "segment": content
+                    })
 
     def groupDualDialogues(self):
         self.detectDualDialogue()
@@ -37,12 +40,16 @@ class GroupDualDialogues:
                 # if potentially dual
                 if margin > 0:
                     currScriptLen = len(currScript[-1]["content"]) - 1
-                    if "dialogue2" not in content:
-                        if content["y"] - page["content"][i-1]["y"] <= margin:
-                            if abs(content["x"] - currScript[-1]["content"][currScriptLen]["x"]) < abs(content["x"] - currScript[-1]["content"][currScriptLen]["dialogue2"]['x']):
-                                currScript[-1]["content"][currScriptLen]["text"] += content["text"]
+                    if "character2" not in content:
+                        if content["segment"]["y"] - page["content"][i-1]["segment"]["y"] <= margin:
+                            leftSide = abs(
+                                content["segment"]["x"] - currScript[-1]["content"][currScriptLen]["segment"]["x"])
+                            rightSide = abs(
+                                content["segment"]["x"] - currScript[-1]["content"][currScriptLen]["character2"]['x'])
+                            if leftSide < rightSide:
+                                currScript[-1]["content"][currScriptLen]["segment"]["text"] += content["segment"]["text"]
                             else:
-                                currScript[-1]["content"][currScriptLen]["dialogue2"]["text"] += content["text"]
+                                currScript[-1]["content"][currScriptLen]["character2"]["text"] += content["segment"]["text"]
                         else:
                             currScript[-1]['content'].append(content)
                             margin = 0
@@ -51,8 +58,9 @@ class GroupDualDialogues:
 
                 # if no dual
                 else:
-                    if "dialogue2" in content:
-                        margin = page["content"][i+1]["y"] - content["y"]
+                    if "character2" in content:
+                        margin = page["content"][i +
+                                                 1]["segment"]["y"] - content["segment"]["y"]
                     currScript[-1]['content'].append(content)
 
         self.newScript = currScript
