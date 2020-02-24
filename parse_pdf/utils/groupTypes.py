@@ -56,7 +56,7 @@ class GroupTypes:
         return "(" in text[0] and ")" in text[-1]
 
     def containsDialogue(self, y, upperY, x, correctMargin, correctWidth):
-        return abs(upperY - y) <= correctMargin and abs(correctWidth - x) <= 5
+        return abs(upperY - y) <= correctMargin
 
     # extracts either dialogue 1 or dialogue 2 (if it's a dual dialogue)
     def getWhichDialogue(self, scene, content, i, whichDialogue):
@@ -75,15 +75,12 @@ class GroupTypes:
                 content[i][whichDialogue]["y"], content[i-1][whichDialogue]["y"],  content[i][whichDialogue]["x"], correctMargin, correctWidth) if (
                 whichDialogue in content[i] and correctMargin != False and correctWidth != False) else False
 
-            if dialogue:
-                print(correctMargin)
-                print(abs(content[i][whichDialogue]["y"] -
-                          content[i-1][whichDialogue]["y"]))
-
             if (parenthetical or dialogue):
                 meta = "parenthetical" if parenthetical else "dialogue"
                 scene["nest"][-1][character]["dialogue"].append({
                     "type": meta,
+                    "x": content[i][whichDialogue]["x"],
+                    "y": content[i][whichDialogue]["y"],
                     "text": content[i][whichDialogue]["text"]
                 })
             else:
@@ -92,11 +89,12 @@ class GroupTypes:
         return (scene, i - 1)
 
     def extractCharacter(self, scene, currentTextObj, content, i):
-        split = currentTextObj["segment"]["text"][0].split()
+        split = currentTextObj["segment"]["text"][0].split("(")
+        modifier = "(" + split[-1] if len(split) > 1 else None
         stitchedDialogue = {
             "character1": {
-                "character": split[0],
-                "modifier": split[1] if len(split) > 1 else None,
+                "character": split[0].strip(),
+                "modifier": modifier,
                 "x": currentTextObj["segment"]["x"],
                 "y": currentTextObj["segment"]["y"],
                 "dialogue": []

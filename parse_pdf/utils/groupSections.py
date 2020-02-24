@@ -52,12 +52,20 @@ class GroupSections:
                 # check if pag enumber
                 if re.search(r"^\d{1,3}\.$", content["segment"]["text"].strip()):
                     previousY = page["content"][i+1]["segment"]["y"] if len(
-                        page["content"]) > 1 and len(page["content"]) > i + 1 else -999
+                        page["content"]) > i + 1 else -999
+                    previousX = page["content"][i+1]["segment"]["x"] if len(
+                        page["content"]) > i + 1 else -999
                     continue
 
                 x = content["segment"]["x"]
                 y = content["segment"]["y"]
                 text = content["segment"]["text"]
+
+                # if page["page"] == 6:
+                #     print(content)
+                #     print(previousX)
+                #     print(previousY)
+                #     print("---")
 
                 if "character2" in content:
                     if len(currentPageSections):
@@ -102,8 +110,6 @@ class GroupSections:
                                 }
                             })
 
-                            previousX = x
-                            previousY = y
                             currentPageSections = []
 
                             if self.checkSlugline(text) or self.checkTransition(text):
@@ -118,12 +124,15 @@ class GroupSections:
                             elif (self.cleanScript(text)):
                                 currentPageSections = [text.strip()]
                         else:
-                            currentPageSections = [text.strip()]
+                            if self.cleanScript(text):
+                                currentPageSections = [text.strip()]
+
+                        previousX = x
+                        previousY = y
                     else:
-                        previousX = min(x, previousX)
                         if self.cleanScript(text):
-                            currentPageSections.append(
-                                content["segment"]["text"])
+                            currentPageSections = [text.strip()]
+                        previousX = min(x, previousX)
                 else:
                     if self.checkSlugline(text) or self.checkTransition(text):
                         if len(currentPageSections):
@@ -157,7 +166,7 @@ class GroupSections:
                                 currentPageSections[len(currentPageSections) - 1].strip(), text.strip())
                         else:
                             currentPageSections.append(text.strip())
-                    previousY = y
+                            previousY = y
 
             if len(currentPageSections) > 0:
                 scriptSections[-1]["content"].append({
