@@ -53,74 +53,75 @@ class GroupTypes:
         return True
 
     def containsParentheticals(self, text):
-        return "(" in text and ")" in text
+        return "(" in text[0] and ")" in text[-1]
 
-    def containsDialogue(self, x, correctX):
-        return abs(x - correctX) <= 3
+    def containsDialogue(self, y, upperY, x, correctMargin, correctWidth):
+        return abs(upperY - y) <= correctMargin and abs(correctWidth - x) <= 5
 
     # extracts either dialogue 1 or dialogue 2 (if it's a dual dialogue)
-    def getWhichDialogue(self, segment, currentTextObj, content, i, whichDialogue):
-        character = "character1" if whichDialogue == "text" else "character2"
+    def getWhichDialogue(self, scene, content, i, whichDialogue):
+        character = "character1" if whichDialogue == "segment" else "character2"
+
+        correctMargin = abs(content[i-1][whichDialogue]
+                            ["y"] - content[i][whichDialogue]["y"]) if whichDialogue in content[i-1] and whichDialogue in content[i] else False
+
+        correctWidth = content[i][whichDialogue]["x"]if whichDialogue in content[i] else False
 
         while i < len(content):
-            parenthetical = False
-            if whichDialogue == "text":
-                parenthetical = self.containsParentheticals(
-                    content[i][whichDialogue][0]) if whichDialogue in content[i] else False
-            else:
-                parenthetical = self.containsParentheticals(
-                    content[i][whichDialogue]["text"][0]) if whichDialogue in content[i] else False
+            parenthetical = self.containsParentheticals(
+                content[i][whichDialogue]["text"][0]) if whichDialogue in content[i] else False
 
             dialogue = self.containsDialogue(
-                content[i]["x"], currentTextObj["x"])
+                content[i][whichDialogue]["y"], content[i-1][whichDialogue]["y"],  content[i][whichDialogue]["x"], correctMargin, correctWidth) if (
+                whichDialogue in content[i] and correctMargin != False and correctWidth != False) else False
 
-            if parenthetical or dialogue:
-                if parenthetical:
-                    segment["nest"][-1][character]["dialogue"].append({
-                        "type": "parenthetical",
-                        "text": content[i]["text"]
-                    })
-                elif dialogue:
-                    segment["nest"][-1][character]["dialogue"].append({
-                        "type": "dialogue",
-                        "text": content[i][whichDialogue]["text"]
-                    })
+            if dialogue:
+                print(correctMargin)
+                print(abs(content[i][whichDialogue]["y"] -
+                          content[i-1][whichDialogue]["y"]))
+
+            if (parenthetical or dialogue):
+                meta = "parenthetical" if parenthetical else "dialogue"
+                scene["nest"][-1][character]["dialogue"].append({
+                    "type": meta,
+                    "text": content[i][whichDialogue]["text"]
+                })
             else:
                 break
             i += 1
-        return (segment, i)
+        return (scene, i - 1)
 
-    def extractCharacter(self, segment, currentTextObj, content, i):
-        split = currentTextObj["text"][0].split()
+    def extractCharacter(self, scene, currentTextObj, content, i):
+        split = currentTextObj["segment"]["text"][0].split()
         stitchedDialogue = {
             "character1": {
                 "character": split[0],
                 "modifier": split[1] if len(split) > 1 else None,
-                "x": currentTextObj["x"],
-                "y": currentTextObj["y"],
+                "x": currentTextObj["segment"]["x"],
+                "y": currentTextObj["segment"]["y"],
                 "dialogue": []
             }
         }
 
-        if "dialogue2" in currentTextObj:
-            split = currentTextObj["dialogue2"]["text"][0].split()
+        if "character2" in currentTextObj:
+            split = currentTextObj["character2"]["text"][0].split()
             stitchedDialogue["character2"] = ({
                 "character": split[0],
                 "modifier": split[1] if len(split) > 1 else None,
-                "x": currentTextObj["dialogue2"]["x"],
-                "y": currentTextObj["dialogue2"]["y"],
+                "x": currentTextObj["character2"]["x"],
+                "y": currentTextObj["character2"]["y"],
                 "dialogue": []
             })
 
-        segment["nest"].append(stitchedDialogue)
+        scene["nest"].append(stitchedDialogue)
 
-        (segment, i) = self.getWhichDialogue(
-            segment, currentTextObj, content, i + 1, "text")
+        (scene, j) = self.getWhichDialogue(
+            scene, content, i + 1, "segment")
 
-        if "dialogue2" in currentTextObj:
-            (segment, i) = self.getWhichDialogue(
-                segment, currentTextObj, content, i + 1, "dialogue2")
-        return (segment, i)
+        if "character2" in currentTextObj:
+            (scene, j) = self.getWhichDialogue(
+                scene, content, i + 1, "character2")
+        return (scene, j)
 
     def extractHeader(self, text):
         curr = text[0].split(".")
@@ -149,7 +150,7 @@ class GroupTypes:
 
     def groupTypes(self, pageWidth):
         groupedTypes = []
-        segment = {
+        scene = {
             "region": None,
             "location": None,
             "time": None,
@@ -162,28 +163,29 @@ class GroupTypes:
             content = page["content"]
             while i < len(content):
                 currentTextObj = content[i]
-                if self.determineHeading(currentTextObj["text"]):
-                    if len(segment["nest"]) > 0:
-                        groupedTypes[-1]["content"].append(copy.copy(segment))
-                    heading = self.extractHeader(currentTextObj["text"])
+                if self.determineHeading(currentTextObj["segment"]["text"]):
+                    if len(scene["nest"]) > 0:
+                        groupedTypes[-1]["content"].append(copy.copy(scene))
+                    heading = self.extractHeader(
+                        currentTextObj["segment"]["text"])
                     region = heading["region"]
                     location = heading["location"]
                     time = heading["time"]
-                    segment = {
+                    scene = {
                         "region": region,
                         "location": location,
                         "time": time,
                         "nest": []
                     }
-                if self.determineCharacter(currentTextObj["text"]):
-                    (segment, x) = self.extractCharacter(
-                        segment, currentTextObj, content, i)
+                if self.determineCharacter(currentTextObj["segment"]["text"]) and i + 1 < len(content):
+                    (scene, x) = self.extractCharacter(
+                        scene, currentTextObj, content, i)
                     i = x
                 else:
-                    segment["nest"].append(currentTextObj)
+                    scene["nest"].append(currentTextObj)
                 i += 1
-            groupedTypes[-1]["content"].append(copy.copy(segment))
-            segment["nest"] = []
+            groupedTypes[-1]["content"].append(copy.copy(scene))
+            scene["nest"] = []
             # if page["page"] == 0:
             #     break
 

@@ -62,9 +62,11 @@ class GroupSections:
                 if "character2" in content:
                     if len(currentPageSections):
                         scriptSections[-1]["content"].append({
-                            "text": currentPageSections,
-                            "x": previousX,
-                            "y": previousY
+                            "segment": {
+                                "text": currentPageSections,
+                                "x": previousX,
+                                "y": previousY
+                            }
                         })
 
                     character2 = {
@@ -123,7 +125,6 @@ class GroupSections:
                             currentPageSections.append(
                                 content["segment"]["text"])
                 else:
-
                     if self.checkSlugline(text) or self.checkTransition(text):
                         if len(currentPageSections):
                             scriptSections[-1]["content"].append({
