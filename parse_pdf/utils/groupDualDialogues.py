@@ -1,5 +1,7 @@
 import json
 
+from groupSections import GroupSections
+
 
 class GroupDualDialogues:
     def __init__(self, script):
@@ -30,8 +32,7 @@ class GroupDualDialogues:
                         "segment": content
                     })
 
-    def groupDualDialogues(self):
-        self.detectDualDialogue()
+    def stitchLastDialogue(self):
         currScript = []
         for page in self.newScript:
             currScript.append({"page": page["page"], "content": []})
@@ -40,7 +41,11 @@ class GroupDualDialogues:
                 # if potentially dual
                 if margin > 0:
                     currScriptLen = len(currScript[-1]["content"]) - 1
+
+                    # may be a dual dialogue
                     if "character2" not in content:
+
+                        # last line of a dual dialogue
                         if content["segment"]["y"] - page["content"][i-1]["segment"]["y"] <= margin:
                             leftSide = abs(
                                 content["segment"]["x"] - currScript[-1]["content"][currScriptLen]["segment"]["x"])
@@ -50,9 +55,13 @@ class GroupDualDialogues:
                                 currScript[-1]["content"][currScriptLen]["segment"]["text"] += content["segment"]["text"]
                             else:
                                 currScript[-1]["content"][currScriptLen]["character2"]["text"] += content["segment"]["text"]
+
+                        # not a dual dialogue. fuk outta here!
                         else:
                             currScript[-1]['content'].append(content)
                             margin = 0
+
+                    # still a dual dialogue
                     else:
                         currScript[-1]["content"].append(content)
 
@@ -64,3 +73,30 @@ class GroupDualDialogues:
                     currScript[-1]['content'].append(content)
 
         self.newScript = currScript
+
+    def stitchRestOfDialogue(self):
+        dialogueStitch = []
+        for page in self.newScript:
+            quest = 0
+            toAppend = 0
+            dialogueStitch.append({"page": page["page"], "content": []})
+            for i, content in enumerate(page["content"]):
+                if "character2" in content:
+                    if quest == 0:
+                        dialogueStitch[-1]["content"].append(content)
+                    elif quest == 1:
+                        dialogueStitch[-1]["content"].append(content)
+                    else:
+                        dialogueStitch[-1]["content"][-1]["character2"]["text"] += content["character2"]["text"]
+                        dialogueStitch[-1]["content"][-1]["segment"]["text"] += content["segment"]["text"]
+                    quest += 1
+                else:
+                    quest = 0
+                    dialogueStitch[-1]["content"].append(content)
+
+        self.newScript = dialogueStitch
+
+    def groupDualDialogues(self):
+        self.detectDualDialogue()
+        self.stitchLastDialogue()
+        self.stitchRestOfDialogue()
