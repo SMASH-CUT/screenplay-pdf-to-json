@@ -57,17 +57,12 @@ class GroupTypes:
         return "(" in text[0] and ")" in text[-1]
 
     def containsDialogue(self, text, y, upperY, x, correctMargin, correctWidth):
-        return text.upper() != text and abs(abs(upperY - y) - correctMargin) < 5 and abs(x - correctWidth) < 10
+        return text.upper() != text and abs(abs(upperY - y) - correctMargin) < 5 and abs(x - correctWidth) < 30
 
     # extracts either dialogue 1 or dialogue 2 (if it's a dual dialogue)
     def getWhichDialogue(self, scene, content, i, whichDialogue):
         character = "character1" if whichDialogue == "segment" else "character2"
 
-        print(i)
-        print(len(content))
-        print(content[i-1])
-        print(content[i])
-        print('---')
         correctMargin = False
         if i > 1 and whichDialogue:
             if content[i-1] and whichDialogue in content[i]:
@@ -123,7 +118,7 @@ class GroupTypes:
 
         scene["nest"].append(stitchedDialogue)
 
-        print(json.dumps(scene, indent=4))
+        # print(json.dumps(scene, indent=4))
 
         (scene, j) = self.getWhichDialogue(
             scene, content, i + 1, "segment")

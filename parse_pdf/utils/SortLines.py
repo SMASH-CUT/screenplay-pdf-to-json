@@ -13,4 +13,4 @@ class SortLines:
             })
             self.newScript[-1]["content"] = page["content"]
             self.newScript[-1]["content"].sort(
-                key=lambda curr: curr["segment"]["y"])
+                key=lambda curr: curr["segment"][0]["y"])
