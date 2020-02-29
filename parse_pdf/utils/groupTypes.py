@@ -70,12 +70,16 @@ class GroupTypes:
         }
 
         if "character2" in currentTextObj:
-            split = currentTextObj["character2"]["text"].split()
-            stitchedDialogue["character2"] = ({
-                "character": split[0],
-                "modifier": split[1] if len(split) > 1 else None,
-                "dialogue": content[i+1]["character2"]
-            })
+            try:
+                split = currentTextObj["character2"]["text"].split()
+                stitchedDialogue["character2"] = ({
+                    "character": split[0],
+                    "modifier": split[1] if len(split) > 1 else None,
+                    "dialogue": content[i+1]["character2"]
+                })
+            except:
+                print(content[i])
+                print(content[i+1])
         scene["nest"].append(stitchedDialogue)
 
         return scene

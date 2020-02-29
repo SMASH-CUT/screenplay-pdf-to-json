@@ -1,5 +1,6 @@
 import json
 import re
+from groupTypes import GroupTypes
 
 transitionEnum = {
     "FADE_IN": "FADE IN",
@@ -20,6 +21,7 @@ transitionEnum = {
 
 EPSILON = 3
 LATEST_PAGE = -1
+
 
 class GroupSections:
     def __init__(self, script):
@@ -60,6 +62,7 @@ class GroupSections:
     # join text array for each dialogue into string
     def joinTextToOneString(self, script):
         groupedTextScript = []
+
         def curatedContent(textType, content):
             return {
                 "x": content[textType][0]["x"],
@@ -69,9 +72,11 @@ class GroupSections:
         for page in script:
             groupedTextScript.append({"page": page["page"], "content": []})
             for i, content in enumerate(page["content"]):
-                groupedTextScript[-1]["content"].append({ "segment": curatedContent("segment", content) })
+                groupedTextScript[-1]["content"].append(
+                    {"segment": curatedContent("segment", content)})
                 if "character2" in content:
-                    groupedTextScript[-1]["content"][-1]["character2"] = curatedContent("character2", content)
+                    groupedTextScript[-1]["content"][-1]["character2"] = curatedContent(
+                        "character2", content)
         return groupedTextScript
 
     # detect last line of a dual dialogue. This isn't detected by detectDualDialogue since
@@ -89,20 +94,23 @@ class GroupSections:
                     # content might be the last line of dual dialogue, or not
                     if "character2" not in content and i > 0:
                         # last line of a dual dialogue
-                        if abs(content["segment"]["y"] - page["content"][i-1]["segment"]["y"]) <= margin + EPSILON:
-                            # print(json.dumps(currScript, indent=4))
+                        if abs(content["segment"][0]["y"] - page["content"][i-1]["segment"][LATEST_PAGE]["y"]) <= margin + EPSILON:
                             def getDiff(contentX, currX): return abs(
                                 contentX - currX)
 
                             diffBetweenContentAndSegment = getDiff(
-                                content["segment"]["x"], page["content"][i-1]["segment"]["x"])
+                                content["segment"][0]["x"], currScript[LATEST_PAGE]["content"][currScriptLen]["segment"][0]["x"])
                             diffBetweenContentAndCharacter2 = getDiff(
-                                content["segment"]["x"], page["content"][i-1]["character2"]["x"]) if "character2" in page["content"][i-1] else -1
+                                content["segment"][0]["x"], currScript[LATEST_PAGE]["content"][currScriptLen]["character2"][0]["x"]) if "character2" in currScript[LATEST_PAGE]["content"][currScriptLen] else -1
+
+                            if "--and download the schematic--" in content["segment"][0]["text"]:
+                                print(content)
+                                print(page["content"][i-1])
 
                             if diffBetweenContentAndSegment < diffBetweenContentAndCharacter2:
-                                currScript[LATEST_PAGE]["content"][currScriptLen]["segment"]["text"] += content["segment"]["text"]
+                                currScript[LATEST_PAGE]["content"][currScriptLen]["segment"] += content["segment"]
                             else:
-                                currScript[LATEST_PAGE]["content"][currScriptLen]["character2"]["text"] += content["segment"]["text"]
+                                currScript[LATEST_PAGE]["content"][currScriptLen]["character2"] += content["segment"]
 
                         # not a dual dialogue. fuk outta here!
                         else:
@@ -117,9 +125,11 @@ class GroupSections:
                 else:
                     if "character2" in content:
                         # margin between character head and FIRST line of dialogue
-                        margin = page["content"][i+1]["segment"]["y"] - \
-                            content["segment"]["y"]
-                    currScript[LATEST_PAGE]['content'].append(content)
+                        margin = abs(page["content"][i+1]["segment"][0]["y"] -
+                                     content["segment"][LATEST_PAGE]["y"])
+                        currScript[LATEST_PAGE]['content'].append(content)
+                    else:
+                        currScript[LATEST_PAGE]['content'].append(content)
 
         return currScript
 
@@ -133,14 +143,17 @@ class GroupSections:
             for i, content in enumerate(page["content"]):
                 if "character2" in content:
                     # character name
-                    if quest <= 1:
+                    if GroupTypes.determineCharacter(content["segment"][0]["text"]):
+                        dialogueStitch[-1]["content"].append(content)
+                        quest = 0
+                    elif quest <= 1:
                         dialogueStitch[-1]["content"].append(content)
 
                     # rest of dual dialogue
                     else:
                         latestDialogue = dialogueStitch[-1]["content"][-1]
-                        latestDialogue["character2"]["text"] += content["character2"]["text"]
-                        latestDialogue["segment"]["text"] += content["segment"]["text"]
+                        latestDialogue["character2"] += content["character2"]
+                        latestDialogue["segment"] += content["segment"]
                     quest += 1
                 else:
                     quest = 0
@@ -248,7 +261,7 @@ class GroupSections:
         return genericSections
 
     def groupSections(self):
-        self.newScript = self.joinTextToOneString(self.script)
-        self.newScript = self.stitchLastDialogue(self.newScript)
+        self.newScript = self.stitchLastDialogue(self.script)
         self.newScript = self.groupRestOfDualDialogue(self.newScript)
-        self.newScript = self.groupGenericSections(self.newScript)
+        self.newScript = self.joinTextToOneString(self.newScript)
+        # self.newScript = self.groupGenericSections(self.newScript)
