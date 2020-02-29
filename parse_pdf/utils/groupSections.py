@@ -167,7 +167,12 @@ class GroupSections:
                             }
                         })
                     genericSections[-1]["content"].append({
-                        "text": content["text"]
+                        "segment": {
+                            "text": content["segment"]["text"]
+                        },
+                        "character2": {
+                            "text": content["character2"]["text"]
+                        },
                     })
                     previousX = -1
                     previousY = -1
