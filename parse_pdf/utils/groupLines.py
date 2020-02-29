@@ -11,6 +11,8 @@ import io
 import pdfminer
 import unicodedata
 
+import json
+
 
 class ParsePdfClass:
     def __init__(self, path):
@@ -76,17 +78,11 @@ class ParsePdfClass:
         # loop over the object list
         for obj in lt_objs:
             if isinstance(obj, pdfminer.layout.LTTextLine):
-                # print(obj.bbox)
                 self.newScript["pdf"][-1]["content"].append({
-                    "x": obj.bbox[0],
-                    "y": pageHeight - obj.bbox[1],
-                    "text": obj.get_text().replace('\n', '')
+                    "x": round(obj.bbox[0]),
+                    "y": round(pageHeight - obj.bbox[1]),
+                    "text": obj.get_text().replace('\n', '').strip()
                 })
             # if it's a textbox, also recurse
             if isinstance(obj, pdfminer.layout.LTTextBoxHorizontal):
-                self.parse_obj(obj._objs, pageHeight)
-
-            # if it's a container, recurse
-            elif isinstance(obj, pdfminer.layout.LTFigure):
-                print('is figure')
                 self.parse_obj(obj._objs, pageHeight)

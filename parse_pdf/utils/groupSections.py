@@ -103,10 +103,6 @@ class GroupSections:
                             diffBetweenContentAndCharacter2 = getDiff(
                                 content["segment"][0]["x"], currScript[LATEST_PAGE]["content"][currScriptLen]["character2"][0]["x"]) if "character2" in currScript[LATEST_PAGE]["content"][currScriptLen] else -1
 
-                            if "--and download the schematic--" in content["segment"][0]["text"]:
-                                print(content)
-                                print(page["content"][i-1])
-
                             if diffBetweenContentAndSegment < diffBetweenContentAndCharacter2:
                                 currScript[LATEST_PAGE]["content"][currScriptLen]["segment"] += content["segment"]
                             else:
@@ -196,15 +192,7 @@ class GroupSections:
                 y = content["segment"]["y"]
                 text = content["segment"]["text"]
 
-                # check if pag enumber
-                if re.search(r"^\d{1,3}\.$", text):
-                    previousY = page["content"][i+1]["segment"]["y"] if len(
-                        page["content"]) > i + 1 else -999
-                    previousX = page["content"][i+1]["segment"]["x"] if len(
-                        page["content"]) > i + 1 else -999
-                    continue
-
-                if round(abs(previousX - x)) > 0:
+                if round(abs(previousX - x)) > 30:
                     if previousY != y:
                         if len(currentPageSections) > 0:
                             genericSections[-1]["content"].append({
@@ -249,7 +237,7 @@ class GroupSections:
                             })
                         currentPageSections = ""
                     elif self.cleanScript(text):
-                        currentPageSections += text.strip()
+                        currentPageSections += " " + text.strip()
                         previousY = y
 
             if len(currentPageSections) > 0:
@@ -264,4 +252,4 @@ class GroupSections:
         self.newScript = self.stitchLastDialogue(self.script)
         self.newScript = self.groupRestOfDualDialogue(self.newScript)
         self.newScript = self.joinTextToOneString(self.newScript)
-        # self.newScript = self.groupGenericSections(self.newScript)
+        self.newScript = self.groupGenericSections(self.newScript)

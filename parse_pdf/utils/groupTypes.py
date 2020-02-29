@@ -15,12 +15,6 @@ class GroupTypes:
         "MORNING": "MORNING"
     }
 
-    characterNameEnum = {
-        "VOICE_OVER": "V.O.",
-        "OFF_SCREEN": "O.S.",
-        "CONTINUED": "CONT'D"
-    }
-
     def determineHeading(self, textStr):
         for heading in self.headingEnum:
             if heading in textStr:
@@ -35,20 +29,19 @@ class GroupTypes:
 
     @staticmethod
     def determineCharacter(textStr):
-        character = textStr.split('(')
-        if character[0] != character[0].upper():
+        characterNameEnum = ["V.O", "O.S", "CONT'D"]
+        for heading in characterNameEnum:
+            if heading in textStr:
+                return True
+
+        if not textStr[0].isalpha():
             return False
 
-        if len(character) > 1:
-            if character[-1].isdigit():
-                return True
-            if ")" not in character[-1]:
-                return False
-        elif len(character) == 1:
-            if "(" in character[0]:
-                return False
+        if textStr != textStr.upper():
+            return False
+
         # check if header?
-        if "." in character[0]:
+        if "-" in textStr or ":" in textStr:
             return False
         return True
 
@@ -58,30 +51,29 @@ class GroupTypes:
     def containsDialogue(self, text, y, upperY, x, correctMargin, correctWidth):
         return text.upper() != text and abs(abs(upperY - y) - correctMargin) < 5 and abs(x - correctWidth) < 30
 
-    def extractCharacter(self, scene, currentTextObj, content, i):
-        split = currentTextObj["segment"]["text"].split("(")
-        modifier = "(" + split[-1] if len(split) > 1 else None
-        stitchedDialogue = {
-            "character1": {
-                "character": split[0].strip(),
+    def extractCharacter(self, scene, content, i):
+        def generateCharacterType(content, index, characterType):
+            textStr = content[index][characterType]["text"]
+            split = content[index][characterType]["text"].split()
+            character = list(
+                filter(lambda x: True if "(" not in x and ")" not in x else False, split))
+            modifier = textStr[textStr.find(
+                "(")+1:textStr.find(")")] if textStr.find("(") != -1 else None
+            return {
+                "character": " ".join(list(character)),
                 "modifier": modifier,
-                "dialogue": content[i+1]["segment"]
+                "dialogue": content[index+1][characterType]
             }
+
+        stitchedDialogue = {
+            "character1": generateCharacterType(content, i, "segment")
         }
 
-        if "character2" in currentTextObj:
-            try:
-                split = currentTextObj["character2"]["text"].split()
-                stitchedDialogue["character2"] = ({
-                    "character": split[0],
-                    "modifier": split[1] if len(split) > 1 else None,
-                    "dialogue": content[i+1]["character2"]
-                })
-            except:
-                print(content[i])
-                print(content[i+1])
-        scene["nest"].append(stitchedDialogue)
+        if "character2" in content[i]:
+            stitchedDialogue["character2"] = generateCharacterType(
+                content, i, "character2")
 
+        scene["nest"].append(stitchedDialogue)
         return scene
 
     def extractHeader(self, text):
@@ -140,12 +132,16 @@ class GroupTypes:
                         "nest": []
                     }
                 elif (self.determineCharacter(currentTextObj["segment"]["text"])
-                      and i + 1 < len(content) or "character2" in currentTextObj):
+                      and i + 1 < len(content)):
                     scene = self.extractCharacter(
-                        scene, currentTextObj, content, i)
+                        scene, content, i)
                     i += 1
                 else:
-                    scene["nest"].append(currentTextObj)
+                    scene["nest"].append({
+                        "action": {
+                            "text": currentTextObj["segment"]["text"]
+                        }
+                    })
                 i += 1
             groupedTypes[-1]["content"].append(copy.copy(scene))
             scene["nest"] = []

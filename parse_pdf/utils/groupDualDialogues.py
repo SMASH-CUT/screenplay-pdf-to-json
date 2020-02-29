@@ -6,7 +6,7 @@ from groupTypes import GroupTypes
 
 class GroupDualDialogues:
     def __init__(self, script):
-        self.script = script["pdf"]
+        self.script = script
         self.newScript = []
 
     def detectDualDialogue(self):
