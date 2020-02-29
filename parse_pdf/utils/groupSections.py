@@ -66,7 +66,7 @@ class GroupSections:
         def curatedContent(textType, content):
             return {
                 "x": content[textType][0]["x"],
-                "y": content[textType][0]["y"],
+                "y": [line["y"] for line in content[textType]],
                 "text": self.getJoinedText(content[textType])
             }
         for page in script:
@@ -139,13 +139,13 @@ class GroupSections:
             for i, content in enumerate(page["content"]):
                 if "character2" in content:
                     # character name
-                    if GroupTypes.determineCharacter(content["segment"][0]["text"]):
+                    if (GroupTypes.determineCharacter(page["content"][i+1]["segment"][0] if i+1 < len(content) else None, content["segment"][0], i)):
                         dialogueStitch[-1]["content"].append(content)
                         quest = 0
                     elif quest <= 1:
                         dialogueStitch[-1]["content"].append(content)
 
-                    # rest of dual dialogue
+                        # rest of dual dialogue
                     else:
                         latestDialogue = dialogueStitch[-1]["content"][-1]
                         latestDialogue["character2"] += content["character2"]
@@ -162,22 +162,30 @@ class GroupSections:
         for page in script:
             previousX = page["content"][0]["segment"]["x"] if len(
                 page["content"]) > 1 else -1
-            previousY = page["content"][0]["segment"]["y"] if len(
+            previousY = page["content"][0]["segment"]["y"][0] if len(
                 page["content"]) > 1 else -1
             currentPageSections = ""
             genericSections.append({"page": page["page"], "content": []})
 
             for i, content in enumerate(page["content"]):
+                x = content["segment"]["x"]
+                y = content["segment"]["y"][0]
+                text = content["segment"]["text"]
+
                 if "character2" in content:
                     if len(currentPageSections):
                         genericSections[-1]["content"].append({
                             "segment": {
                                 "text": currentPageSections,
+                                "x": previousX,
+                                "y": previousY
                             }
                         })
                     genericSections[-1]["content"].append({
                         "segment": {
-                            "text": content["segment"]["text"]
+                            "text": content["segment"]["text"],
+                            "x": x,
+                            "y": y
                         },
                         "character2": {
                             "text": content["character2"]["text"]
@@ -188,16 +196,14 @@ class GroupSections:
                     currentPageSections = ""
                     continue
 
-                x = content["segment"]["x"]
-                y = content["segment"]["y"]
-                text = content["segment"]["text"]
-
                 if round(abs(previousX - x)) > 30:
                     if previousY != y:
                         if len(currentPageSections) > 0:
                             genericSections[-1]["content"].append({
                                 "segment": {
                                     "text": currentPageSections,
+                                    "x": previousX,
+                                    "y": previousY
                                 }
                             })
                             currentPageSections = ""
@@ -206,6 +212,8 @@ class GroupSections:
                                 genericSections[-1]["content"].append({
                                     "segment": {
                                         "text": text,
+                                        "x": x,
+                                        "y": y
                                     }
                                 })
                                 currentPageSections = ""
@@ -227,23 +235,32 @@ class GroupSections:
                             genericSections[-1]["content"].append({
                                 "segment": {
                                     "text": currentPageSections,
+                                    "x": previousX,
+                                    "y": previousY
                                 }
                             })
                         if self.cleanScript(text):
                             genericSections[-1]["content"].append({
                                 "segment": {
                                     "text": text,
+                                    "x": x,
+                                    "y": y
                                 }
                             })
                         currentPageSections = ""
                     elif self.cleanScript(text):
-                        currentPageSections += " " + text.strip()
-                        previousY = y
+                        if currentPageSections == "" or currentPageSections[-1] == " ":
+                            currentPageSections += text.strip()
+                        else:
+                            currentPageSections += " " + text.strip()
+                        previousY = min(previousY, y)
 
             if len(currentPageSections) > 0:
                 genericSections[-1]["content"].append({
                     "segment": {
                         "text": currentPageSections,
+                        "x": previousX,
+                        "y": previousY
                     }
                 })
         return genericSections

@@ -8,7 +8,7 @@ from SortLines import SortLines
 from tokenizeText import TokenizeText
 from removePageNumbers import removePageNumbers
 
-p1 = ParsePdfClass('../../script_assets/1917.pdf')
+p1 = ParsePdfClass('../../script_assets/marriage_story.pdf')
 p1.parsepdf()
 
 newScript = p1.newScript["pdf"]
@@ -16,11 +16,10 @@ newScript = removePageNumbers(newScript)
 
 file1 = open('../results/resultFirst.json', 'w+')
 json.dump(newScript, file1, indent=4, ensure_ascii=False)
-fileX = open('../results/resultCoco.json', 'w+')
-json.dump(p1.newScript, fileX, indent=4, ensure_ascii=False)
 
 p2 = GroupDualDialogues(newScript)
 p2.groupDualDialogues()
+
 
 px = SortLines(p2.newScript)
 px.sortLines()

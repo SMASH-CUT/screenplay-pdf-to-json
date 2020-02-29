@@ -1,5 +1,6 @@
 import copy
 import json
+import re
 
 
 class GroupTypes:
@@ -28,8 +29,16 @@ class GroupTypes:
         return False
 
     @staticmethod
-    def determineCharacter(textStr):
+    def determineCharacter(nextContent, currentContent,  i):
+        textStr = currentContent["text"]
+        x = currentContent["x"]
+        y = currentContent["y"]
         characterNameEnum = ["V.O", "O.S", "CONT'D"]
+
+        if nextContent:
+            if nextContent["y"] - y > 40:
+                return False
+
         for heading in characterNameEnum:
             if heading in textStr:
                 return True
@@ -40,8 +49,14 @@ class GroupTypes:
         if textStr != textStr.upper():
             return False
 
+        if " BY" in textStr:
+            return False
+
         # check if header?
-        if "-" in textStr or ":" in textStr:
+        if "--" in textStr or " - " in textStr or ":" in textStr:
+            return False
+
+        if not re.search('^[a-zA-Z]+(([\',. -][a-zA-Z ])?[a-zA-Z]*)*$', textStr):
             return False
         return True
 
@@ -77,23 +92,24 @@ class GroupTypes:
         return scene
 
     def extractHeader(self, text):
-        curr = text.split(".")
+        def stripWord(textArr): return [x.strip() for x in textArr]
+        curr = stripWord(text.split('.'))
         location = []
         time = None
         region = curr[0]
         if len(curr) > 1:
             divider = "."
             dayOrNot = self.determineDay(curr[len(curr) - 1])
-            location = curr[1:-1] if dayOrNot else curr
+            location = stripWord(curr[1:-1]) if dayOrNot else curr
 
             if (len(curr) == 2):
                 divider = ","
                 if any("-" in el for el in curr):
                     divider = "-"
                 curr = curr[1].split(divider)
-                location = curr[0:-1] if dayOrNot else curr
+                location = stripWord(curr[0:-1]) if dayOrNot else curr
 
-            time = curr[len(curr) - 1] if dayOrNot else None
+            time = curr[len(curr) - 1].strip() if dayOrNot else None
 
         return {
             "region": region,
@@ -131,8 +147,7 @@ class GroupTypes:
                         "time": time,
                         "nest": []
                     }
-                elif (self.determineCharacter(currentTextObj["segment"]["text"])
-                      and i + 1 < len(content)):
+                elif self.determineCharacter(content[i+1]["segment"] if i+1 < len(content) else None, content[i]["segment"], i):
                     scene = self.extractCharacter(
                         scene, content, i)
                     i += 1

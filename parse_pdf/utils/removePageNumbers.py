@@ -6,8 +6,10 @@ def removePageNumbers(script):
     for page in script:
         dialogueStitch.append({"page": page["page"], "content": []})
         for content in page["content"]:
-            text = content["text"]
-            if re.search(r"^i{2,3}|(pg)?\d{1,3}[\.]*|([(]?CONTINUED[:)]?)$", text) and len(text.split()) <= 2:
+            text = content["text"].strip()
+            if "KI-WOO" in text:
+                print(text)
+            if text == "" or re.search(r"^i{2,3}|(pg)?\d{1,3}[\.]*|([(]?CONTINUED[:)]?)$", text) and len(text.split()) <= 2:
                 continue
             dialogueStitch[-1]["content"].append(content)
     removeDuplicates(dialogueStitch)
