@@ -36,7 +36,6 @@ class GroupTypes:
     @staticmethod
     def determineCharacter(textStr):
         character = textStr.split('(')
-
         if character[0] != character[0].upper():
             return False
 
@@ -59,40 +58,6 @@ class GroupTypes:
     def containsDialogue(self, text, y, upperY, x, correctMargin, correctWidth):
         return text.upper() != text and abs(abs(upperY - y) - correctMargin) < 5 and abs(x - correctWidth) < 30
 
-    # extracts either dialogue 1 or dialogue 2 (if it's a dual dialogue)
-    def getWhichDialogue(self, scene, content, i, whichDialogue):
-        character = "character1" if whichDialogue == "segment" else "character2"
-
-        correctMargin = False
-        if i > 1 and whichDialogue:
-            if content[i-1] and whichDialogue in content[i]:
-                correctMargin = abs(content[i-1][whichDialogue]
-                                    ["y"] - content[i][whichDialogue]["y"])
-
-        correctWidth = content[i][whichDialogue]["x"]if whichDialogue in content[i] else False
-
-        while i < len(content):
-            parenthetical = self.containsParentheticals(
-                content[i][whichDialogue]["text"]) if whichDialogue in content[i] else False
-
-            dialogue = self.containsDialogue(
-                content[i][whichDialogue]["text"],
-                content[i][whichDialogue]["y"], content[i-1][whichDialogue]["y"],  content[i][whichDialogue]["x"], correctMargin, correctWidth) if (
-                whichDialogue in content[i] and correctMargin != False and correctWidth != False) else False
-
-            if (parenthetical or dialogue):
-                meta = "parenthetical" if parenthetical else "dialogue"
-                scene["nest"][-1][character]["dialogue"].append({
-                    "type": meta,
-                    "x": content[i][whichDialogue]["x"],
-                    "y": content[i][whichDialogue]["y"],
-                    "text": content[i][whichDialogue]["text"]
-                })
-            else:
-                break
-            i += 1
-        return (scene, i - 1)
-
     def extractCharacter(self, scene, currentTextObj, content, i):
         split = currentTextObj["segment"]["text"].split("(")
         modifier = "(" + split[-1] if len(split) > 1 else None
@@ -100,9 +65,7 @@ class GroupTypes:
             "character1": {
                 "character": split[0].strip(),
                 "modifier": modifier,
-                "x": currentTextObj["segment"]["x"],
-                "y": currentTextObj["segment"]["y"],
-                "dialogue": []
+                "dialogue": content[i+1]["segment"]
             }
         }
 
@@ -111,22 +74,11 @@ class GroupTypes:
             stitchedDialogue["character2"] = ({
                 "character": split[0],
                 "modifier": split[1] if len(split) > 1 else None,
-                "x": currentTextObj["character2"]["x"],
-                "y": currentTextObj["character2"]["y"],
-                "dialogue": []
+                "dialogue": content[i+1]["character2"]
             })
-
         scene["nest"].append(stitchedDialogue)
 
-        # print(json.dumps(scene, indent=4))
-
-        (scene, j) = self.getWhichDialogue(
-            scene, content, i + 1, "segment")
-
-        if "character2" in currentTextObj:
-            (scene, j) = self.getWhichDialogue(
-                scene, content, i + 1, "character2")
-        return (scene, j)
+        return scene
 
     def extractHeader(self, text):
         curr = text.split(".")
@@ -185,9 +137,9 @@ class GroupTypes:
                     }
                 elif (self.determineCharacter(currentTextObj["segment"]["text"])
                       and i + 1 < len(content) or "character2" in currentTextObj):
-                    (scene, x) = self.extractCharacter(
+                    scene = self.extractCharacter(
                         scene, currentTextObj, content, i)
-                    i = x
+                    i += 1
                 else:
                     scene["nest"].append(currentTextObj)
                 i += 1
