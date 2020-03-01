@@ -1,6 +1,9 @@
 import copy
 import json
 import re
+import spacy
+
+nlp = spacy.load("en_core_web_sm")
 
 
 class GroupTypes:
@@ -8,13 +11,9 @@ class GroupTypes:
         self.script = script
         self.newScript = []
 
-    headingEnum = ["INT.", "EXT.", "INT./EXT.", "EXT./INT."]
+    headingEnum = ["EXT./INT.", "INT./EXT.", "INT.", "EXT."]
 
-    timeEnum = {
-        "DAY": "DAY",
-        "NIGHT": "NIGHT",
-        "MORNING": "MORNING"
-    }
+    timeEnum = ["DAY", "NIGHT", "MORNING", "DUSK", "LATER"]
 
     def determineHeading(self, textStr):
         for heading in self.headingEnum:
@@ -28,12 +27,21 @@ class GroupTypes:
                 return True
         return False
 
+    def extractDay(self, textStr):
+        a = re.search(r'DAY|NIGHT|MORNING', textStr)
+        return a.start()
+
     @staticmethod
     def determineCharacter(nextContent, currentContent,  i):
         textStr = currentContent["text"]
         x = currentContent["x"]
         y = currentContent["y"]
         characterNameEnum = ["V.O", "O.S", "CONT'D"]
+
+        doc = nlp(textStr)
+        for token in doc:
+            if token.pos_ == "VERB" or token.pos_ == "DET":
+                return False
 
         if nextContent:
             if nextContent["y"] - y > 40:
@@ -56,8 +64,11 @@ class GroupTypes:
         if "--" in textStr or " - " in textStr or ":" in textStr:
             return False
 
-        if not re.search('^[a-zA-Z]+(([\',. -][a-zA-Z ])?[a-zA-Z]*)*$', textStr):
+        # if not re.search('^[a-zA-Z]+(([\',. -][a-zA-Z ])?[a-zA-Z]*)*$', textStr):
+        #     return False
+        if "END" in textStr or "INC." in textStr:
             return False
+
         return True
 
     def containsParentheticals(self, text):
@@ -93,23 +104,27 @@ class GroupTypes:
 
     def extractHeader(self, text):
         def stripWord(textArr): return [x.strip() for x in textArr]
-        curr = stripWord(text.split('.'))
-        location = []
+        region = re.match(
+            '((?:(?:MONTAGE|FLASHBACK)[ ]?[-][ ]?)?(?:EXT[\.]?\/INT[\.]?|INT[\.]?\/EXT[\.]?|INT\.|EXT\.))', text).groups()
         time = None
-        region = curr[0]
-        if len(curr) > 1:
-            divider = "."
-            dayOrNot = self.determineDay(curr[len(curr) - 1])
-            location = stripWord(curr[1:-1]) if dayOrNot else curr
-
-            if (len(curr) == 2):
-                divider = ","
-                if any("-" in el for el in curr):
-                    divider = "-"
-                curr = curr[1].split(divider)
-                location = stripWord(curr[0:-1]) if dayOrNot else curr
-
-            time = curr[len(curr) - 1].strip() if dayOrNot else None
+        if len(text.split('.')) > 2:
+            if self.determineDay(text):
+                location = region[1:-1]
+                time = region[-1]
+            else:
+                location = region[1:]
+            region = region[0]
+        else:
+            region = region[0]
+            if self.determineDay(text):
+                location = re.search(
+                    "((?:[\w’'() ]+[ ]?[-][ ]?)+(?:(?!\w)))(?![ ]?INT|EXT)", text)
+                location = location.groups(
+                )[0] if location is not None else None
+                time = text.replace(location, "")
+                time = time.replace(region, "")
+            else:
+                location = text.replace(region, "")
 
         return {
             "region": region,
@@ -125,6 +140,7 @@ class GroupTypes:
             "time": None,
             "nest": []
         }
+        test = False
 
         for page in self.script:
             groupedTypes.append({"page": page["page"], "content": []})
@@ -157,6 +173,7 @@ class GroupTypes:
                             "text": currentTextObj["segment"]["text"]
                         }
                     })
+
                 i += 1
             groupedTypes[-1]["content"].append(copy.copy(scene))
             scene["nest"] = []

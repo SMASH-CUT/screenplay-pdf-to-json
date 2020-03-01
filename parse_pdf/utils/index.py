@@ -8,7 +8,7 @@ from SortLines import SortLines
 from tokenizeText import TokenizeText
 from removePageNumbers import removePageNumbers
 
-p1 = ParsePdfClass('../../script_assets/marriage_story.pdf')
+p1 = ParsePdfClass('../../script_assets/star_is_born.pdf')
 p1.parsepdf()
 
 newScript = p1.newScript["pdf"]

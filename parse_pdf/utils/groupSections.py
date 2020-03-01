@@ -2,22 +2,22 @@ import json
 import re
 from groupTypes import GroupTypes
 
-transitionEnum = {
-    "FADE_IN": "FADE IN",
-    "FADE_OUT": "FADE OUT",
-    "FADE_UP": "FADE UP",
-    "JUMP_CUT": "JUMP CUT",
-    "MATCH_CUT": "MATCH CUT",
-    "SMASH_CUT": "SMASH MATCH CUT",
-    "MATCH_DISSOLVE": "MATCH DISSOLVE",
-    "CUT": "CUT",
-    "DISSOLVE": "DISSOLVE",
-    "FLASH_CUT": "FLASH CUT",
-    "FREEZE_FRAME": "FREEZE FRAME",
-    "IRIS_IN": "IRIS IN",
-    "IRIS_OUT": "IRIS OUT",
-    "WIPE": "WIPE TO"
-}
+transitionEnum = [
+    "FADE IN",
+    "FADE OUT",
+    "FADE UP",
+    "JUMP CUT",
+    "MATCH CUT",
+    "SMASH MATCH CUT",
+    "MATCH DISSOLVE",
+    "CUT",
+    "DISSOLVE",
+    "FLASH CUT",
+    "FREEZE FRAME",
+    "IRIS IN",
+    "IRIS OUT",
+    "WIPE TO"
+]
 
 EPSILON = 3
 LATEST_PAGE = -1
@@ -196,7 +196,13 @@ class GroupSections:
                     currentPageSections = ""
                     continue
 
-                if round(abs(previousX - x)) > 30:
+                if "When all the world" in text:
+                    print(content)
+                    print(currentPageSections)
+                    print(previousX)
+                    print(previousY)
+
+                if round(abs(previousX - x)) > 40:
                     if previousY != y:
                         if len(currentPageSections) > 0:
                             genericSections[-1]["content"].append({
@@ -207,29 +213,27 @@ class GroupSections:
                                 }
                             })
                             currentPageSections = ""
+                        if (self.cleanScript(text)):
+                            currentPageSections = text
 
-                            if GroupSections.checkSlugline(text) or GroupSections.checkTransition(text):
-                                genericSections[-1]["content"].append({
-                                    "segment": {
-                                        "text": text,
-                                        "x": x,
-                                        "y": y
-                                    }
-                                })
-                                currentPageSections = ""
-                            elif (self.cleanScript(text)):
-                                currentPageSections = text.strip()
-                        else:
-                            if self.cleanScript(text):
-                                currentPageSections = text.strip()
+                        if GroupSections.checkSlugline(text) or GroupSections.checkTransition(text):
+                            genericSections[-1]["content"].append({
+                                "segment": {
+                                    "text": text,
+                                    "x": x,
+                                    "y": y
+                                }
+                            })
+                            currentPageSections = ""
 
                         previousX = x
                         previousY = y
                     else:
                         if self.cleanScript(text):
-                            currentPageSections = text.strip()
+                            currentPageSections = text
                         previousX = min(x, previousX)
                 else:
+
                     if GroupSections.checkSlugline(text) or GroupSections.checkTransition(text):
                         if len(currentPageSections):
                             genericSections[-1]["content"].append({
@@ -239,15 +243,21 @@ class GroupSections:
                                     "y": previousY
                                 }
                             })
-                        if self.cleanScript(text):
-                            genericSections[-1]["content"].append({
-                                "segment": {
-                                    "text": text,
-                                    "x": x,
-                                    "y": y
-                                }
-                            })
                         currentPageSections = ""
+                        if self.cleanScript(text):
+                            # if it's a header and time includes a long modifier
+                            if "(" in text and ")" not in text:
+                                currentPageSections = text
+                            else:
+                                genericSections[-1]["content"].append({
+                                    "segment": {
+                                        "text": text,
+                                        "x": previousX,
+                                        "y": previousY
+                                    }
+                                })
+                                currentPageSections = ""
+                        previousY = y
                     elif self.cleanScript(text):
                         if currentPageSections == "" or currentPageSections[-1] == " ":
                             currentPageSections += text.strip()
