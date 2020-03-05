@@ -150,10 +150,21 @@ class GroupSections:
     def groupGenericSections(self, script, pageStart):
         genericSections = []
 
-        def stitchOrSeperateText(x, y, index, text, page, version):
-            if abs(x - page["content"][index-1]["segment"]["x"]) > 40 or (y - self.previousY > self.marginOfOperation + 5
-                                                                          or self.upperCase == version and
-                                                                          len(self.currentPageSections) > 0):
+        def stitchOrSeperateText(x, y, index, text, page, lowerMode):
+            lengthSufficient = len(self.currentPageSections) > 0
+
+            # if last text is ")", it's a paren, and so we want to combine it with current text
+            notPartOfParentheses = ((")" != page["content"][index-1]["segment"]["text"][-1]
+                                     and "(" != text[0]) or self.upperCase == True)
+
+            outsideBoundary = y - self.previousY > self.marginOfOperation + 5
+
+            if notPartOfParentheses and lengthSufficient and (self.upperCase == lowerMode or outsideBoundary):
+                if "here today" in text:
+                    print(text)
+                    print("{}, {}, {}, {}".format(notPartOfParentheses,
+                                                  lengthSufficient, abs(x - page["content"][index-1]["segment"]
+                                                                        ["x"]) > 35, y - self.previousY > self.marginOfOperation + 5))
                 genericSections[-1]["content"].append({
                     "segment": {
                         "text": self.currentPageSections,

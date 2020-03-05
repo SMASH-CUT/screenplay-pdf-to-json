@@ -9,6 +9,7 @@ autopep8 = "*"
 
 [packages]
 pdfminer = "*"
+spacy = "*"
 
 [requires]
 python_version = "3.7"

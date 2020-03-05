@@ -21,7 +21,7 @@ def cleanPage(script, pageStart):
                 continue
             elif (re.search(' \d{1,3}[.]?', text) or re.search('\d{1,2}\/\d{1,2}\/\d{2,4}', text)) and (i == 0 or i == len(content)-1):
                 continue
-            elif (re.match('(\d|l|i|I){1,3}[.]?', text.strip())) and len(text.strip()) < 5:
+            elif (re.match('(\d|l|i|I){1,3}[.]?(?![\w\d])', text.strip())) and len(text.strip()) < 5:
                 continue
             elif re.search(r"^i{2,3}|([(]?CONTINUED[:)]{0,2})$", text) and (len(text.split()) < 2 or i == 0 or i == len(content)-1):
                 continue

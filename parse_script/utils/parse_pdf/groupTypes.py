@@ -113,6 +113,12 @@ def extractHeader(text):
     }
 
 
+# def determineAction(content):
+#     if content["text"] == content["text"].upper():
+#         return False
+#     if content["x"] >
+
+
 def groupTypes(script, pageStart, pageWidth):
     groupedTypes = []
     scene = {
@@ -132,7 +138,12 @@ def groupTypes(script, pageStart, pageWidth):
         content = page["content"]
         while i < len(content):
             currentTextObj = content[i]
-
+            # if determineAction(currentTextObj["segment"]):
+            #     scene["nest"].append({
+            #         "action": {
+            #             "text": currentTextObj["segment"]["text"]
+            #         }
+            #     })
             if determineHeading(currentTextObj["segment"]["text"]):
                 if len(scene["nest"]) > 0:
                     groupedTypes[-1]["content"].append(copy.copy(scene))
