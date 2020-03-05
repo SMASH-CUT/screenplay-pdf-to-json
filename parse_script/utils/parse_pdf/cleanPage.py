@@ -7,15 +7,25 @@ def cleanPage(script, pageStart):
         if page["page"] < pageStart:
             continue
         dialogueStitch.append({"page": page["page"], "content": []})
-        for i, content in enumerate(page["content"]):
+
+        firstRound = []
+        for content in page["content"]:
             text = content["text"].strip()
-            if i == 0 and re.search('^\d{1,3}[.]?$', text):
+            if text == "" or text == "*" or text == "." or text == "\\." or text == "\\" or text == "'":
                 continue
-            elif text == "":
+            firstRound.append(content)
+
+        for i, content in enumerate(firstRound):
+            text = content["text"].strip()
+            if "TV Calling - For educational purposes only" in text:
                 continue
-            elif re.search(r"^i{2,3}|([(]?CONTINUED[:)]?)$", text) and len(text.split()) <= 2:
+            elif (re.search(' \d{1,3}[.]?', text) or re.search('\d{1,2}\/\d{1,2}\/\d{2,4}', text)) and (i == 0 or i == len(content)-1):
                 continue
-            elif "TV Calling - For educational purposes only" in text:
+            elif (re.match('(\d|l|i|I){1,3}[.]?', text.strip())) and len(text.strip()) < 5:
+                continue
+            elif re.search(r"^i{2,3}|([(]?CONTINUED[:)]{0,2})$", text) and (len(text.split()) < 2 or i == 0 or i == len(content)-1):
+                continue
+            elif re.match('i{2,3}', text.strip()):
                 continue
             dialogueStitch[-1]["content"].append(content)
     removeDuplicates(dialogueStitch)
