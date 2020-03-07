@@ -4,12 +4,10 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-pylint = "*"
-autopep8 = "*"
 
 [packages]
-pdfminer = "*"
 spacy = "*"
+pdfminer-six = "*"
 
 [requires]
 python_version = "3.7"

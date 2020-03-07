@@ -1,6 +1,8 @@
 import json
 from utils.characterHelpers import isCharacter
-from utils.headingHelpers import isHeading
+from utils.headingHelpers import isHeading, extractHeading
+
+LAST_SCENE = -2
 
 
 def groupSections(topTrends, script, pageStart):
@@ -14,7 +16,8 @@ def groupSections(topTrends, script, pageStart):
 
         for i, content in enumerate(page["content"]):
             finalSections[-1]["content"].append({
-                "scene_heading": content["scene_heading"],
+                "scene_number": content["scene_number"],
+                "scene_info": content["scene_info"],
                 "scene": []
             })
             j = 0
@@ -32,8 +35,15 @@ def groupSections(topTrends, script, pageStart):
                 elif sectionSameTypeAsPrevious and scene["type"] == "DIALOGUE":
                     finalSections[-1]["content"][-1]["scene"][-1]["dialogue"] += " " + scene["text"]
                 elif sectionSameTypeAsPrevious and scene["type"] == "ACTION":
-                    finalSections[-1]["content"][-1]["scene"][-1]["content"].append(
-                        scene["content"][0])
+
+                    # if part of same paragraph, concat text
+                    if (scene["content"][0]["y"] - finalSections[-1]["content"][-1]["scene"][-1]["content"][-1]["y"] <= 16):
+                        finalSections[-1]["content"][-1]["scene"][-1]["content"][-1]["text"] += scene["content"][0]["text"]
+                        finalSections[-1]["content"][-1]["scene"][-1]["content"][-1]["y"] = scene["content"][0]["y"]
+                    # else, just append entire text
+                    else:
+                        finalSections[-1]["content"][-1]["scene"][-1]["content"].append(
+                            scene["content"][0])
                 else:
                     finalSections[-1]["content"][-1]["scene"].append(scene)
 
@@ -43,13 +53,15 @@ def groupSections(topTrends, script, pageStart):
 
 def categorizeSections(topTrends, script, pageStart):
     finalSections = []
+    sceneNumber = 0
     for page in script:
         if page["page"] < pageStart:
             continue
         finalSections.append({"page": page["page"], "content": []})
 
         finalSections[-1]["content"].append({
-            "scene_heading": finalSections[-2]["content"][-1]["scene_heading"] if len(finalSections) > 2 else None,
+            "scene_number": sceneNumber,
+            "scene_info": finalSections[LAST_SCENE]["content"][-1]["scene_info"] if len(finalSections) >= 2 else None,
             "scene": []
         })
 
@@ -74,14 +86,17 @@ def categorizeSections(topTrends, script, pageStart):
             isTransition = content["segment"][0]["x"] >= 420 or "FADE IN:" in text
 
             if isHeading(content["segment"][0]):
+                sceneNumber += 1
                 if len(finalSections[-1]["content"][-1]["scene"]) == 0:
                     finalSections[-1]["content"][-1] = {
-                        "scene_heading": content,
+                        "scene_number": sceneNumber,
+                        "scene_info": extractHeading(content["segment"][0]["text"]),
                         "scene": []
                     }
                 else:
                     finalSections[-1]["content"].append({
-                        "scene_heading": content,
+                        "scene_number": sceneNumber,
+                        "scene_info": extractHeading(content["segment"][0]["text"]),
                         "scene": []
                     })
                 characterOccurred = False

@@ -1,4 +1,4 @@
-
+import re
 
 headingEnum = ["EXT./INT.", "INT./EXT.", "INT.", "EXT."]
 
@@ -17,7 +17,7 @@ def extractTime(text):
     return findTime.start() if findTime else None
 
 
-def extractHeader(text):
+def extractHeading(text):
     def stripWord(textArr): return [x.strip() for x in textArr]
     region = re.match(
         '((?:(?:MONTAGE|FLASHBACK)[ ]?[-][ ]?)?(?:EXT[\.]?\/INT[\.]?|INT[\.]?\/EXT[\.]?|INT\.|EXT\.))', text).groups()[0]
