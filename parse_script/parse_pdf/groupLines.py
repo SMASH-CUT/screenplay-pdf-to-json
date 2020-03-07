@@ -46,7 +46,8 @@ class ParsePdfClass:
 
         # BEGIN LAYOUT ANALYSIS
         # Set parameters for analysis.
-        laparams = LAParams(word_margin=100, boxes_flow=1, line_margin=0.1)
+        laparams = LAParams(word_margin=100, boxes_flow=1,
+                            line_margin=0.3)
 
         # Create a PDF page aggregator object.
         device = PDFPageAggregator(rsrcmgr, laparams=laparams)

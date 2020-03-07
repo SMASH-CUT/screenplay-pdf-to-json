@@ -8,16 +8,20 @@ def sortLines(script, pageStart):
             "page": page["page"],
             "content": []
         })
+
         newScript[-1]["content"] = page["content"]
-        newScript[-1]["content"].sort(
-            key=lambda curr: int(str(curr["y"]) + str(curr["x"])))
 
         newScript[-1]["content"].sort(
-            key=lambda curr: int(str(curr["y"]) + str(curr["x"])))
+            key=lambda curr: (curr["y"], curr["x"]))
 
+        # TODO: how to determine this?
         for i, content in enumerate(newScript[-1]["content"]):
-            if content["y"] - newScript[-1]["content"][i-1]["y"] < 10:
+            if abs(content["y"] - newScript[-1]["content"][i-1]["y"]) < 5:
                 newScript[-1]["content"][i-1]["y"] = content["y"]
-                # print(content)
-                # print(newScript[-1]["content"][i-1])
+        # print(content)
+        # print(newScript[-1]["content"][i-1])
+
+        newScript[-1]["content"].sort(
+            key=lambda curr: (curr["y"], curr["x"]))
+
     return newScript
