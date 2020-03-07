@@ -32,25 +32,14 @@ newScript = p1.newScript["pdf"]
 # remove any useless line (page number, empty line, special symbols)
 newScript = cleanPage(newScript, pageStart)
 
-file1 = open('results/resultFirst.json', 'w+')
-json.dump(newScript, file1, indent=4, ensure_ascii=False)
-
 # sort lines by y. If y is the same, then sort by x
 newScript = sortLines(newScript, pageStart)
-file1 = open('results/resultSort.json', 'w+')
-json.dump(newScript, file1, indent=4, ensure_ascii=False)
 
 # group dual dialogues into the same segments
 newScript = groupDualDialogues(newScript, pageStart)
 
-file1 = open('results/resultDual.json', 'w+')
-json.dump(newScript, file1, indent=4, ensure_ascii=False)
-
 # because of pdfminer's imperfections, we have to stitch words into what's supposed to be part of the same line
 newScript = stitchSeperateWordsIntoLines(newScript, pageStart)
-
-file1 = open('results/resultStitch.json', 'w+')
-json.dump(newScript, file1, indent=4, ensure_ascii=False)
 
 topTrends = getTopTrends(newScript)
 pp.pprint(topTrends)
