@@ -1,11 +1,12 @@
 import json
-from utils.characterHelpers import isCharacter
+from utils.characterHelpers import isCharacter, extractCharacter
 from utils.headingHelpers import isHeading, extractHeading
 
 LAST_SCENE = -2
 
 
 def groupSections(topTrends, script, pageStart):
+    """group types into the same sections"""
     newScript = categorizeSections(topTrends, script, pageStart)
 
     finalSections = []
@@ -52,6 +53,7 @@ def groupSections(topTrends, script, pageStart):
 
 
 def categorizeSections(topTrends, script, pageStart):
+    """categorize lines into types"""
     finalSections = []
     sceneNumber = 0
     for page in script:
@@ -120,7 +122,7 @@ def categorizeSections(topTrends, script, pageStart):
             elif isCharacter(content["segment"][0]):
                 finalSections[-1]["content"][-1]["scene"].append({
                     "type": "CHARACTER",
-                    "text": text,
+                    "text": extractCharacter(content["segment"][0]),
                     "metadata": {
                         "x": x,
                         "y": y

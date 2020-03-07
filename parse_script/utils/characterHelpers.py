@@ -11,30 +11,17 @@ def containsDialogue(text, y, upperY, x, correctMargin, correctWidth):
     return text.upper() != text and abs(abs(upperY - y) - correctMargin) < 5 and abs(x - correctWidth) < 30
 
 
-def extractCharacter(scene, content, i):
-    def generateCharacterType(content, index, characterType):
-        text = content[index][characterType]["text"]
-        split = content[index][characterType]["text"].split()
-        character = list(
-            filter(lambda x: True if "(" not in x and ")" not in x else False, split))
-        modifier = text[text.find(
-            "(")+1:text.find(")")] if text.find("(") != -1 else None
-        return {
-            "character": " ".join(list(character)),
-            "modifier": modifier,
-            "dialogue": content[index+1][characterType]
-        }
-
-    stitchedDialogue = {
-        "character1": generateCharacterType(content, i, "segment")
+def extractCharacter(currentContent):
+    text = currentContent["text"]
+    split = text.split()
+    character = list(
+        filter(lambda x: True if "(" not in x and ")" not in x else False, split))
+    modifier = text[text.find(
+        "(")+1:text.find(")")] if text.find("(") != -1 else None
+    return {
+        "character": " ".join(list(character)),
+        "modifier": modifier,
     }
-
-    if "character2" in content[i]:
-        stitchedDialogue["character2"] = generateCharacterType(
-            content, i, "character2")
-
-    scene["nest"].append(stitchedDialogue)
-    return scene
 
 
 def isParentheses(content):

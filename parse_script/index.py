@@ -25,7 +25,7 @@ args = parser.parse_args()
 pageStart = args.start if args.start else 0
 
 # parse script based on pdfminer.six. Lacking documentation so gotta need some adjustments in our end :(
-p1 = ParsePdfClass('../script_assets/{}'.format(args.s))
+p1 = ParsePdfClass(args.s)
 p1.parsepdf()
 newScript = p1.newScript["pdf"]
 
