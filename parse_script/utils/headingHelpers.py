@@ -18,7 +18,6 @@ def extractTime(text):
 
 
 def extractHeading(text):
-    print(text)
     def stripWord(textArr): return [x.strip() for x in textArr]
     region = re.match(
         '((?:(?:MONTAGE|FLASHBACK)[ ]?[-][ ]?)?(?:EXT[\.]?\/INT[\.]?|INT[\.]?\/EXT[\.]?|INT\.|EXT\.))', text).groups()[0]

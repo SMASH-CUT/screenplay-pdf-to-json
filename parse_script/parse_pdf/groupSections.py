@@ -28,15 +28,18 @@ def groupSections(topTrends, script, pageStart):
                 sectionSameTypeAsPrevious = j > 0 and scene["type"] == content["scene"][j-1]["type"]
                 if scene["type"] == "CHARACTER":
                     finalSections[-1]["content"][-1]["scene"].append({
-                        "character": scene["text"],
-                        "dialogue": ""
+                        "type": "CHARACTER",
+                        "content": {
+                            "character": scene["text"]["character"],
+                            "modifier": scene["text"]["modifier"],
+                            "dialogue": ""
+                        }
                     })
                 elif scene["type"] == "DIALOGUE" and content["scene"][j-1]["type"] == "CHARACTER":
-                    finalSections[-1]["content"][-1]["scene"][-1]["dialogue"] += scene["text"]
+                    finalSections[-1]["content"][-1]["scene"][-1]["content"]["dialogue"] += scene["text"]
                 elif sectionSameTypeAsPrevious and scene["type"] == "DIALOGUE":
-                    finalSections[-1]["content"][-1]["scene"][-1]["dialogue"] += " " + scene["text"]
+                    finalSections[-1]["content"][-1]["scene"][-1]["content"]["dialogue"] += " " + scene["text"]
                 elif sectionSameTypeAsPrevious and scene["type"] == "ACTION":
-
                     # if part of same paragraph, concat text
                     if (scene["content"][0]["y"] - finalSections[-1]["content"][-1]["scene"][-1]["content"][-1]["y"] <= 16):
                         finalSections[-1]["content"][-1]["scene"][-1]["content"][-1]["text"] += scene["content"][0]["text"]
@@ -45,6 +48,22 @@ def groupSections(topTrends, script, pageStart):
                     else:
                         finalSections[-1]["content"][-1]["scene"][-1]["content"].append(
                             scene["content"][0])
+                elif scene["type"] == "DUAL_DIALOGUE":
+                    if isCharacter(scene["content"]["character1"][0]):
+                        finalSections[-1]["content"][-1]["scene"].append({
+                            "type": "DUAL_DIALOGUE",
+                            "content": {
+                                "character1": {
+                                    "character": extractCharacter(scene["content"]["character1"][0]),
+                                },
+                                "character2": {
+                                    "character": extractCharacter(scene["content"]["character2"][0]),
+                                },
+                            }
+                        })
+                    else:
+                        finalSections[-1]["content"][-1]["scene"][-1]["content"]["character1"]["dialogue"] = scene["content"]["character1"]
+                        finalSections[-1]["content"][-1]["scene"][-1]["content"]["character2"]["dialogue"] = scene["content"]["character2"]
                 else:
                     finalSections[-1]["content"][-1]["scene"].append(scene)
 
@@ -72,9 +91,15 @@ def categorizeSections(topTrends, script, pageStart):
             if "character2" in content:
                 finalSections[-1]["content"][-1]["scene"].append({
                     "type": "DUAL_DIALOGUE",
-                    "character1": content["segment"],
-                    "character2": content["character2"],
+                    "content": {
+                        "character1": content["segment"],
+                        "character2": content["character2"],
+                    }
                 })
+                print("----")
+                print(json.dumps(
+                    finalSections[-1]["content"][-1]["scene"], indent=4))
+                print("----")
                 characterOccurred = False
                 continue
 
@@ -105,10 +130,12 @@ def categorizeSections(topTrends, script, pageStart):
             elif isTransition:
                 finalSections[-1]["content"][-1]["scene"].append({
                     "type": "TRANSITION",
-                    "text": text,
-                    "metadata": {
-                        "x": x,
-                        "y": y
+                    "content": {
+                        "text": text,
+                        "metadata": {
+                            "x": x,
+                            "y": y
+                        }
                     }
                 })
                 characterOccurred = False
