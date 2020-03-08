@@ -56,11 +56,11 @@ python index.py -s path_of_screenplay.pdf --start page_number_to_start_analyzing
 - CHARACTER
   ```js
    "content": {
-       "character": "TERMINATOR",
-       "modifier": null,  // V.O, O.S., and more
+       "character": "MILES",
+       "modifier": null,  // V.O, O.S., and more. null if no modifier
        "dialogue": [
         "Hey good morning. How you doing?... Weekend was short, huh? ",
-        "(he turns to another kid)",
+        "(he turns to another kid)", //parentheticals are seperated
         " Oh my gosh this is embarrassing, we wore the same jacket--"
        ]
    }
