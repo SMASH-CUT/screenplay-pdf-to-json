@@ -9,6 +9,7 @@ LAST_SCENE = -2
 
 def groupSections(topTrends, script, pageStart):
     """group types into the same sections"""
+
     newScript = categorizeSections(topTrends, script, pageStart)
     newScript = combineCategories(newScript, pageStart)
     newScript = divideParentheticals(newScript)
@@ -16,6 +17,8 @@ def groupSections(topTrends, script, pageStart):
 
 
 def divideParentheticals(newScript):
+    """seperates parentheticals from dialogues"""
+
     for page in newScript:
         for i, section in enumerate(page["content"]):
             for j, scene in enumerate(section["scene"]):
@@ -31,12 +34,16 @@ def divideParentheticals(newScript):
 
 
 def getParenthetical(text):
+    """splits dialogue string into list, seperating any containing parenthetical(s)"""
+
     return list(
         filter(lambda x: len(x) > 0, re.split(r'(\([^)]+\))', text))
     )
 
 
 def combineCategories(newScript, pageStart):
+    """combines consecutive sections with the same type"""
+
     finalSections = []
     for page in newScript:
         if page["page"] < pageStart:
@@ -109,6 +116,7 @@ def getJoinedText(textArr):
 
 def categorizeSections(topTrends, script, pageStart):
     """categorize lines into types"""
+
     finalSections = []
     sceneNumber = 0
     for page in script:
@@ -132,10 +140,6 @@ def categorizeSections(topTrends, script, pageStart):
                         "character2": content["character2"],
                     }
                 })
-                # print("----")
-                # print(json.dumps(
-                #     finalSections[-1]["content"][-1]["scene"], indent=4))
-                # print("----")
                 characterOccurred = False
                 continue
 
@@ -147,6 +151,7 @@ def categorizeSections(topTrends, script, pageStart):
 
             # booleans
             isTransition = content["segment"][0]["x"] >= 420 or "FADE IN:" in text
+            isAction = abs(x - topTrends[0][0]) <= 15
 
             if isHeading(content["segment"][0]):
                 sceneNumber += 1
@@ -175,7 +180,7 @@ def categorizeSections(topTrends, script, pageStart):
                     }
                 })
                 characterOccurred = False
-            elif abs(x - topTrends[0][0]) <= 15:
+            elif isAction:
                 finalSections[-1]["content"][-1]["scene"].append({
                     "type": "ACTION",
                     "content": [{"text": text, "x": x, "y": y}]
@@ -195,6 +200,7 @@ def categorizeSections(topTrends, script, pageStart):
             else:
                 currentScene = finalSections[-1]["content"][-1]["scene"]
 
+                # first line of page is never a dialogue
                 if len(currentScene) == 0 or not characterOccurred:
                     finalSections[-1]["content"][-1]["scene"].append({
                         "type": "ACTION",

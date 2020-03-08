@@ -32,19 +32,11 @@ def isCharacter(currentContent):
     if text != text.upper():
         return False
 
-    # doc = nlp(text)
-    # for token in doc:
-    #     if token.pos_ == "VERB" or token.pos_ == "DET":
-    #         return False
-
     # check if header?
     if any(x in text for x in ["--", "!"]):
         return False
 
     if any(x in text[-1] for x in ["-", "."]):
         return False
-
-    # if not re.search('^[a-zA-Z]+(([\',. -][a-zA-Z ])?[a-zA-Z]*)*$', text):
-    #     return False
 
     return True
