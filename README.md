@@ -108,11 +108,11 @@ python index.py -s path_of_screenplay.pdf --start page_number_to_start_analyzing
 
 ## Todos
 
-[ ] Add unit tests
-[ ] Skip to start of screenplay
-[ ] Add -o flag to set output path
-[ ] More documentation
-[ ] Add option to use as a library
+- [ ] Add unit tests
+- [x] Skip to start of screenplay
+- [ ] Add -o flag to set output path
+- [ ] More documentation
+- [ ] Add option to use as a library
 
 ## Author
 
