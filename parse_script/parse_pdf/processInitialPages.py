@@ -1,5 +1,6 @@
 import json
 import re
+from parse_pdf.cleanPage import cleanPage
 
 
 def processInitialPages(script):
@@ -21,11 +22,12 @@ def processInitialPages(script):
             break
         firstPages.append({
             "page": i,
-            "type": "FIRST_PAGES",
-            "content": {
-                "text": script[i]["content"]
-            }
+            "content": script[i]["content"]
         })
         i += 1
 
+    firstPages = cleanPage(firstPages, 0)
+    firstPages = [x for x in firstPages]
+    for page in firstPages:
+        page["type"] = "FIRST_PAGES"
     return (firstPages, i)

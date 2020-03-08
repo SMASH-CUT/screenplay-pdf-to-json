@@ -8,6 +8,7 @@ verify_ssl = true
 [packages]
 spacy = "*"
 pdfminer-six = "*"
+pytest = "*"
 
 [requires]
 python_version = "3.7"

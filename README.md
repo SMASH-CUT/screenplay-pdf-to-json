@@ -5,6 +5,9 @@
 ## Install
 
 ```sh
+pipenv install
+
+# or
 pip3 install -r requirements.txt
 ```
 
@@ -31,7 +34,7 @@ python index.py -s path_of_screenplay.pdf --start page_number_to_start_analyzing
     "scene_info": {
         "region": "EXT.",  //region of scene [EXT., INT., EXT./INT, INT./EXT]
         "location": "VILLA",
-        "time": "DAY" // time of scene [DAY, NIGHT, DAWN, DUSK, ...]
+        "time": ["DAY"] // time of scene [DAY, NIGHT, DAWN, DUSK, ...]
     },
     "scene": [{
         "type": "ACTION",  // type of snippet [ACTION, CHARACTER, TRANSITION, DUAL_DIALOGUE]
@@ -108,11 +111,12 @@ python index.py -s path_of_screenplay.pdf --start page_number_to_start_analyzing
 
 ## Todos
 
-- [ ] Add unit tests
+- [x] Add unit tests
 - [x] Skip to start of screenplay
 - [ ] Add -o flag to set output path
 - [ ] More documentation
 - [ ] Add option to use as a library
+- [ ] detect end of screenplay
 
 ## Author
 

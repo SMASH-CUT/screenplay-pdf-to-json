@@ -5,12 +5,12 @@ def isParenthetical(text):
 def extractCharacter(currentContent):
     text = currentContent["text"]
     split = text.split()
-    character = list(
-        filter(lambda x: True if "(" not in x and ")" not in x else False, split))
     modifier = text[text.find(
         "(")+1:text.find(")")] if text.find("(") != -1 else None
+    character = text.replace(
+        "("+modifier+")", "") if modifier is not None else text
     return {
-        "character": " ".join(list(character)),
+        "character": character,
         "modifier": modifier,
     }
 
