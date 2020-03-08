@@ -37,7 +37,7 @@ def getParenthetical(text):
     """splits dialogue string into list, seperating any containing parenthetical(s)"""
 
     return list(
-        filter(lambda x: len(x) > 0, re.split(r'(\([^)]+\))', text))
+        filter(lambda x: len(x.strip()) > 0, re.split(r'(\([^)]+\))', text))
     )
 
 

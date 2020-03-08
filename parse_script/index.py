@@ -9,7 +9,7 @@ from parse_pdf.SortLines import sortLines
 from parse_pdf.cleanPage import cleanPage
 from parse_pdf.getTopTrends import getTopTrends
 from parse_pdf.stitchSeperateWordsIntoLines import stitchSeperateWordsIntoLines
-
+from parse_pdf.processInitialPages import processInitialPages
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -20,32 +20,38 @@ parser.add_argument('-s', metavar='screenplay', type=str,
 parser.add_argument('--start', metavar='start page', type=int,
                     help='page to begin analyzing', required=False)
 
-# start from pageStart set up by user.  default to 0
+# start from skipPage set up by user.  default to 0
 args = parser.parse_args()
-pageStart = args.start if args.start else 0
 
 # parse script based on pdfminer.six. Lacking documentation so gotta need some adjustments in our end :(
 p1 = ParsePdfClass(args.s)
 p1.parsepdf()
 newScript = p1.newScript["pdf"]
 
+firstPagesDict = processInitialPages(newScript)
+
+firstPages = firstPagesDict[0]
+skipPage = args.start if args.start else firstPagesDict[1]
+
 # remove any useless line (page number, empty line, special symbols)
-newScript = cleanPage(newScript, pageStart)
+newScript = cleanPage(newScript, skipPage)
 
 # sort lines by y. If y is the same, then sort by x
-newScript = sortLines(newScript, pageStart)
+newScript = sortLines(newScript, skipPage)
 
 # group dual dialogues into the same segments
-newScript = groupDualDialogues(newScript, pageStart)
+newScript = groupDualDialogues(newScript, skipPage)
 
 # because of pdfminer's imperfections, we have to stitch words into what's supposed to be part of the same line
-newScript = stitchSeperateWordsIntoLines(newScript, pageStart)
+newScript = stitchSeperateWordsIntoLines(newScript, skipPage)
 
 topTrends = getTopTrends(newScript)
-pp.pprint(topTrends)
+# pp.pprint(topTrends)
 
 # # group into sections based on type
-newScript = groupSections(topTrends, newScript, pageStart)
+newScript = groupSections(topTrends, newScript, skipPage)
+
+newScript = firstPages + newScript
 
 file1 = open('./result.json', 'w+')
 json.dump(newScript, file1, indent=4, ensure_ascii=False)
