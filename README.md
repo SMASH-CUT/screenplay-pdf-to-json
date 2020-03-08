@@ -16,7 +16,7 @@ python index.py -s path_of_screenplay.pdf --start page_number_to_start_analyzing
 
 ## Notes
 
-- It's advisable to set `--start` to the start of the screenplay. Title page, cast list, etc should be skipped. Feature to detect these pages is part of the Roadmap, so stay tuned.
+- It's advisable to set `--start` to the start of the screenplay. Title page, cast list, etc should be skipped. Feature to detect these pages is part of the roadmap, so stay tuned.
 - Works well for "clean" PDF screenplays, not OCR PDFs.
 - Production screenplays works pretty well.
 
@@ -58,47 +58,35 @@ python index.py -s path_of_screenplay.pdf --start page_number_to_start_analyzing
    "content": {
        "character": "TERMINATOR",
        "modifier": null,  // V.O, O.S., and more
-       "dialogue": "I'll be back."
+       "dialogue": [
+        "Hey good morning. How you doing?... Weekend was short, huh? ",
+        "(he turns to another kid)",
+        " Oh my gosh this is embarrassing, we wore the same jacket--"
+       ]
    }
   ```
 - DUAL_DIALOGUE
   ```js
    "content": {
        "character1": {
-          "character": {
-              "character": "PETER",
-              "modifier": null
-          },
-          "dialogue": [
-              [
-                  {
-                      "x": 108,
-                      "y": 144,
-                      "text": "(groggy)"
-                  },
-                  {
-                      "x": 108,
-                      "y": 156,
-                      "text": "why are you trying to kill me?--"
-                  }
-              ]
-          ]
-      },
-      "character2": {
-          "character": {
-              "character": "MILES",
-              "modifier": "CONT'D"
-          },
-          "dialogue": [
-              [
-                  {
-                      "x": 333,
-                      "y": 144,
-                      "text": "--I’m not! I’m trying to save you!"
-                  }
-              ]
-          ]
-      }
+            "character": {
+                "character": "PETER",
+                "modifier": null
+            },
+            "dialogue": [
+                "(groggy)",
+                " Why are you trying to kill me?--"
+            ]
+        },
+        "character2": {
+            "character": {
+                "character": "MILES",
+                "modifier": "CONT'D"
+            },
+            "dialogue": [
+                "--I’m not! I’m trying to save you!"
+            ]
+        }
    }
   ```
 - TRANSITION
@@ -115,7 +103,7 @@ python index.py -s path_of_screenplay.pdf --start page_number_to_start_analyzing
 ## Run tests
 
 ```sh
-# No tests for now. Will add pretty soon
+# No tests for now. In the roadmap
 ```
 
 ## Author
