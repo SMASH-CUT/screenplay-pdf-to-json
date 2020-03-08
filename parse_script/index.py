@@ -47,5 +47,5 @@ pp.pprint(topTrends)
 # # group into sections based on type
 newScript = groupSections(topTrends, newScript, pageStart)
 
-file1 = open('results/result.json', 'w+')
+file1 = open('./result.json', 'w+')
 json.dump(newScript, file1, indent=4, ensure_ascii=False)

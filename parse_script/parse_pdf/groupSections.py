@@ -1,5 +1,7 @@
 import json
-from utils.characterHelpers import isCharacter, extractCharacter
+import re
+
+from utils.characterHelpers import isCharacter, isParenthetical, extractCharacter
 from utils.headingHelpers import isHeading, extractHeading
 
 LAST_SCENE = -2
@@ -8,7 +10,33 @@ LAST_SCENE = -2
 def groupSections(topTrends, script, pageStart):
     """group types into the same sections"""
     newScript = categorizeSections(topTrends, script, pageStart)
+    newScript = combineCategories(newScript, pageStart)
+    newScript = divideParentheticals(newScript)
+    return newScript
 
+
+def divideParentheticals(newScript):
+    for page in newScript:
+        for i, section in enumerate(page["content"]):
+            for j, scene in enumerate(section["scene"]):
+                if scene["type"] == "CHARACTER":
+                    scene["content"]["dialogue"] = getParenthetical(
+                        scene["content"]["dialogue"])
+                elif scene["type"] == "DUAL_DIALOGUE":
+                    scene["content"]["character1"]["dialogue"] = getParenthetical(
+                        scene["content"]["character1"]["dialogue"])
+                    scene["content"]["character2"]["dialogue"] = getParenthetical(
+                        scene["content"]["character2"]["dialogue"])
+    return newScript
+
+
+def getParenthetical(text):
+    return list(
+        filter(lambda x: len(x) > 0, re.split(r'(\([^)]+\))', text))
+    )
+
+
+def combineCategories(newScript, pageStart):
     finalSections = []
     for page in newScript:
         if page["page"] < pageStart:
@@ -35,19 +63,6 @@ def groupSections(topTrends, script, pageStart):
                             "dialogue": ""
                         }
                     })
-                elif scene["type"] == "DIALOGUE" and content["scene"][j-1]["type"] == "CHARACTER":
-                    finalSections[-1]["content"][-1]["scene"][-1]["content"]["dialogue"] += scene["text"]
-                elif sectionSameTypeAsPrevious and scene["type"] == "DIALOGUE":
-                    finalSections[-1]["content"][-1]["scene"][-1]["content"]["dialogue"] += " " + scene["text"]
-                elif sectionSameTypeAsPrevious and scene["type"] == "ACTION":
-                    # if part of same paragraph, concat text
-                    if (scene["content"][0]["y"] - finalSections[-1]["content"][-1]["scene"][-1]["content"][-1]["y"] <= 16):
-                        finalSections[-1]["content"][-1]["scene"][-1]["content"][-1]["text"] += scene["content"][0]["text"]
-                        finalSections[-1]["content"][-1]["scene"][-1]["content"][-1]["y"] = scene["content"][0]["y"]
-                    # else, just append entire text
-                    else:
-                        finalSections[-1]["content"][-1]["scene"][-1]["content"].append(
-                            scene["content"][0])
                 elif scene["type"] == "DUAL_DIALOGUE":
                     if isCharacter(scene["content"]["character1"][0]):
                         finalSections[-1]["content"][-1]["scene"].append({
@@ -62,13 +77,34 @@ def groupSections(topTrends, script, pageStart):
                             }
                         })
                     else:
-                        finalSections[-1]["content"][-1]["scene"][-1]["content"]["character1"]["dialogue"] = scene["content"]["character1"]
-                        finalSections[-1]["content"][-1]["scene"][-1]["content"]["character2"]["dialogue"] = scene["content"]["character2"]
+                        finalSections[-1]["content"][-1]["scene"][-1]["content"]["character1"]["dialogue"] = getJoinedText(
+                            scene["content"]["character1"])
+                        finalSections[-1]["content"][-1]["scene"][-1]["content"]["character2"]["dialogue"] = getJoinedText(
+                            scene["content"]["character2"])
+
+                elif scene["type"] == "DIALOGUE" and content["scene"][j-1]["type"] == "CHARACTER":
+                    finalSections[-1]["content"][-1]["scene"][-1]["content"]["dialogue"] += scene["text"]
+                elif sectionSameTypeAsPrevious and scene["type"] == "DIALOGUE":
+                    finalSections[-1]["content"][-1]["scene"][-1]["content"]["dialogue"] += " " + scene["text"]
+                elif sectionSameTypeAsPrevious and scene["type"] == "ACTION":
+                    # if part of same paragraph, concat text
+                    if (scene["content"][0]["y"] - finalSections[-1]["content"][-1]["scene"][-1]["content"][-1]["y"] <= 16):
+                        finalSections[-1]["content"][-1]["scene"][-1]["content"][-1]["text"] += scene["content"][0]["text"]
+                        finalSections[-1]["content"][-1]["scene"][-1]["content"][-1]["y"] = scene["content"][0]["y"]
+                    # else, just append entire text
+                    else:
+                        finalSections[-1]["content"][-1]["scene"][-1]["content"].append(
+                            scene["content"][0])
                 else:
                     finalSections[-1]["content"][-1]["scene"].append(scene)
 
                 j += 1
     return finalSections
+
+
+def getJoinedText(textArr):
+    return " ".join([arr["text"]
+                     for arr in textArr])
 
 
 def categorizeSections(topTrends, script, pageStart):
@@ -96,10 +132,10 @@ def categorizeSections(topTrends, script, pageStart):
                         "character2": content["character2"],
                     }
                 })
-                print("----")
-                print(json.dumps(
-                    finalSections[-1]["content"][-1]["scene"], indent=4))
-                print("----")
+                # print("----")
+                # print(json.dumps(
+                #     finalSections[-1]["content"][-1]["scene"], indent=4))
+                # print("----")
                 characterOccurred = False
                 continue
 

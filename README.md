@@ -2,8 +2,6 @@
 
 > Parse PDF screenplay into rich JSON format
 
-screenplay-parser reads in
-
 ## Install
 
 ```sh

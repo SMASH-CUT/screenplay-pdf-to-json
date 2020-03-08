@@ -1,14 +1,5 @@
-import spacy
-
-nlp = spacy.load("en_core_web_sm")
-
-
-def containsParentheticals(text):
+def isParenthetical(text):
     return "(" in text[0] and ")" in text[-1]
-
-
-def containsDialogue(text, y, upperY, x, correctMargin, correctWidth):
-    return text.upper() != text and abs(abs(upperY - y) - correctMargin) < 5 and abs(x - correctWidth) < 30
 
 
 def extractCharacter(currentContent):
@@ -24,17 +15,11 @@ def extractCharacter(currentContent):
     }
 
 
-def isParentheses(content):
-    text = content["text"]
-    result = "(" in text[0] and ")" in text[-1]
-    return result
-
-
 def isCharacter(currentContent):
     text = currentContent["text"]
     characterNameEnum = ["V.O", "O.S", "CONT'D"]
 
-    if containsParentheticals(text):
+    if isParenthetical(text):
         return False
 
     for heading in characterNameEnum:
