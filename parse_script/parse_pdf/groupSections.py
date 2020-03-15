@@ -181,11 +181,15 @@ def categorizeSections(topTrends, script, pageStart):
                 })
                 characterOccurred = False
             elif isAction:
-                finalSections[-1]["content"][-1]["scene"].append({
-                    "type": "ACTION",
-                    "content": [{"text": text, "x": x, "y": y}]
-                })
-                characterOccurred = False
+                # if Heading is multi-line
+                if i > 0 and len(finalSections[-1]["content"][-1]["scene"]) == 0 and y - page["content"][i-1]["segment"][-1]["y"] < 24:
+                    finalSections[-1]["content"][-1]["scene_info"]["location"] += " " + text
+                else:
+                    finalSections[-1]["content"][-1]["scene"].append({
+                        "type": "ACTION",
+                        "content": [{"text": text, "x": x, "y": y}]
+                    })
+                    characterOccurred = False
 
             elif isCharacter(content["segment"][0]):
                 finalSections[-1]["content"][-1]["scene"].append({

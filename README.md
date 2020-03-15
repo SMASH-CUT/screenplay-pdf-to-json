@@ -106,7 +106,7 @@ python index.py -s path_of_screenplay.pdf --start page_number_to_start_analyzing
 ## Run tests
 
 ```sh
-# No tests for now. In the roadmap
+python -m pytest tests/
 ```
 
 ## Todos

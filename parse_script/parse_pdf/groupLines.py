@@ -78,7 +78,14 @@ class ParsePdfClass:
 
         # loop over the object list
         for obj in lt_objs:
+
             if isinstance(obj, pdfminer.layout.LTTextLine):
+                # text = obj.get_text()
+                # if text.strip():
+                #     for c in obj._objs:
+                #         if isinstance(c, pdfminer.layout.LTChar):
+                #             print("fontname %s" % c)
+
                 self.newScript["pdf"][-1]["content"].append({
                     "x": round(obj.bbox[0]),
                     "y": round(pageHeight - obj.bbox[1]),
