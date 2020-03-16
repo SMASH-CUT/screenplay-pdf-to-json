@@ -75,12 +75,8 @@ def combineCategories(newScript, pageStart):
                         finalSections[-1]["content"][-1]["scene"].append({
                             "type": "DUAL_DIALOGUE",
                             "content": {
-                                "character1": {
-                                    "character": extractCharacter(scene["content"]["character1"][0]),
-                                },
-                                "character2": {
-                                    "character": extractCharacter(scene["content"]["character2"][0]),
-                                },
+                                "character1": extractCharacter(scene["content"]["character1"][0]),
+                                "character2":  extractCharacter(scene["content"]["character2"][0]),
                             }
                         })
                     else:
