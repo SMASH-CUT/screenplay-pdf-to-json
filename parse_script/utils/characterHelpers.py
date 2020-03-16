@@ -43,9 +43,10 @@ def isCharacter(currentContent):
     if any(x in text[-1] for x in ["-", "."]):
         return False
 
-    check = nlp(text)
-    for word in check:
-        if "VERB" == word.pos_ or "ADP" == word.pos_ or "DET" == word.pos_:
-            return False
+    if ")" not in text:
+        check = nlp(text)
+        for word in check:
+            if "VERB" == word.pos_ or "ADP" == word.pos_ or "DET" == word.pos_:
+                return False
 
     return True

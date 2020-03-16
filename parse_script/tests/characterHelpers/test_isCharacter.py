@@ -29,11 +29,13 @@ def assertGroup(characters, expectedcharacters):
 def test_correct_characrters():
     characters = [
         'JOHN',
+        'JEFFERSON (INTO P.A.)'
     ]
     characters = setupMultiplecharacters(characters)
 
     expectedcharacters = [
         True,
+        True
     ]
 
     assertGroup(characters, expectedcharacters)
