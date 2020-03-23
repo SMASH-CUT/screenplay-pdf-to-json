@@ -15,8 +15,8 @@ import json
 
 
 class ParsePdfClass:
-    def __init__(self, path):
-        self.path = path
+    def __init__(self, scriptFile):
+        self.scriptFile = scriptFile
 
     pageWidth = 0
 
@@ -25,11 +25,8 @@ class ParsePdfClass:
     }
 
     def parsepdf(self):
-        # Open a PDF file.
-        fp = open(self.path, 'rb')
-
         # Create a PDF parser object associated with the file object.
-        parser = PDFParser(fp)
+        parser = PDFParser(self.scriptFile)
 
         # Create a PDF document object that stores the document structure.
         document = PDFDocument(parser)

@@ -1,6 +1,4 @@
-# I HACKED INTO YOUR ACCOUNT
-
-from utils.characterHelpers import isCharacter
+from screenplay_pdf_to_json.utils import isCharacter
 import pytest
 
 

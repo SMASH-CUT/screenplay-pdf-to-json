@@ -1,5 +1,5 @@
 import pytest
-from utils.headingHelpers import isHeading, extractTime, extractHeading
+from screenplay_pdf_to_json.utils import isHeading, extractTime, extractHeading
 
 
 def createMockContent(text):

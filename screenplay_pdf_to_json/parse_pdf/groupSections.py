@@ -1,8 +1,7 @@
 import json
 import re
 
-from utils.characterHelpers import isCharacter, isParenthetical, extractCharacter
-from utils.headingHelpers import isHeading, extractHeading
+from screenplay_pdf_to_json.utils import isCharacter, isParenthetical, extractCharacter, isHeading, extractHeading
 
 LAST_SCENE = -2
 

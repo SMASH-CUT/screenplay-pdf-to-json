@@ -1,6 +1,5 @@
 import pytest
-from utils.headingHelpers import extractTime
-
+from screenplay_pdf_to_json.utils import extractTime
 
 def createMockContent(text):
     return {

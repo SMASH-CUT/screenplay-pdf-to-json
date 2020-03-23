@@ -1,6 +1,6 @@
+from screenplay_pdf_to_json.utils import isCharacter
 import json
 import copy
-from utils.characterHelpers import isCharacter
 
 LATEST_PAGE = -1
 EPSILON = 3
