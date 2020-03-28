@@ -2,16 +2,13 @@ import json
 import argparse
 import pprint
 
-from screenplay_pdf_to_json.parse_pdf import ParsePdfClass, groupDualDialogues, groupSections, sortLines, cleanPage, getTopTrends, stitchSeperateWordsIntoLines, processInitialPages
+from screenplay_pdf_to_json.parse_pdf import parsePdf, groupDualDialogues, groupSections, sortLines, cleanPage, getTopTrends, stitchSeperateWordsIntoLines, processInitialPages
 
 pp = pprint.PrettyPrinter(indent=4)
 
-
 def convert(scriptFile, pageStart):
     # parse script based on pdfminer.six. Lacking documentation so gotta need some adjustments in our end :(
-    p1 = ParsePdfClass(scriptFile)
-    p1.parsepdf()
-    newScript = p1.newScript["pdf"]
+    newScript = parsePdf(scriptFile)["pdf"]
 
     firstPagesDict = processInitialPages(newScript)
 
@@ -37,6 +34,7 @@ def convert(scriptFile, pageStart):
     newScript = groupSections(topTrends, newScript, skipPage)
 
     newScript = firstPages + newScript
+    scriptFile.close()
     return newScript
 
 

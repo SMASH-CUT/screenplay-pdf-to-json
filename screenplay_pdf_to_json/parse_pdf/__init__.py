@@ -1,4 +1,4 @@
-from .groupLines import ParsePdfClass
+from .groupLines import parsePdf
 from .groupDualDialogues import groupDualDialogues
 from .groupSections import groupSections
 from .SortLines import sortLines
