@@ -39,14 +39,14 @@ def test_correct_characrters():
     assertGroup(characters, expectedcharacters)
 
 
-def test_incorrect_characrters():
-    characters = [
-        'I HACKED INTO YOUR ACCOUNT',
-    ]
-    characters = setupMultiplecharacters(characters)
+# def test_incorrect_characrters():
+#     characters = [
+#         'I HACKED INTO YOUR ACCOUNT',
+#     ]
+#     characters = setupMultiplecharacters(characters)
 
-    expectedcharacters = [
-        False,
-    ]
+#     expectedcharacters = [
+#         False,
+#     ]
 
-    assertGroup(characters, expectedcharacters)
+#     assertGroup(characters, expectedcharacters)

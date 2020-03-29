@@ -1,10 +1,8 @@
 import json
 import argparse
-import pprint
 
 from screenplay_pdf_to_json.parse_pdf import parsePdf, groupDualDialogues, groupSections, sortLines, cleanPage, getTopTrends, stitchSeperateWordsIntoLines, processInitialPages
 
-pp = pprint.PrettyPrinter(indent=4)
 
 def convert(scriptFile, pageStart):
     # parse script based on pdfminer.six. Lacking documentation so gotta need some adjustments in our end :(
@@ -28,9 +26,8 @@ def convert(scriptFile, pageStart):
     newScript = stitchSeperateWordsIntoLines(newScript, skipPage)
 
     topTrends = getTopTrends(newScript)
-    # pp.pprint(topTrends)
 
-    # # group into sections based on type
+    # group into sections based on type
     newScript = groupSections(topTrends, newScript, skipPage)
 
     newScript = firstPages + newScript

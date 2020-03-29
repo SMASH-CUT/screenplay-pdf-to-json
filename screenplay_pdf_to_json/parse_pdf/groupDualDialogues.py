@@ -30,10 +30,15 @@ def groupDualDialogues(script, pageStart):
             nextContent = page["content"][i +
                                           1] if i + 1 < len(page["content"]) else False
 
-            # if content's y axis is the same as
-            if nextContent and isCharacter(content) and isCharacter(nextContent):
+            prevContent = page["content"][i - 1] if i -1 >= 0  else False
+
+            previousIsCharacter = prevContent and isCharacter(prevContent)
+
+            # if current line and next line is character, and previous line is not character (3 characters in a row is impossible)
+            if not previousIsCharacter and  nextContent and isCharacter(content) and isCharacter(nextContent):
                 isDualDialogue = 1
 
+            # if next content is the same line, and isDualDialogue > 0, then it's a dual dialogue
             if nextContent and currentY == nextContent["y"] and isDualDialogue > 0:
                 character2ToAdd = {
                     "x": nextContent["x"],

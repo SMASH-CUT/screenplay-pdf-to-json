@@ -70,7 +70,8 @@ def combineCategories(newScript, pageStart):
                         }
                     })
                 elif scene["type"] == "DUAL_DIALOGUE":
-                    if isCharacter(scene["content"]["character1"][0]):
+                    sectionIsCharacter = lambda currScene, character: len(currScene["content"][character]) == 1 and isCharacter(currScene["content"][character][0])
+                    if sectionIsCharacter(scene, "character1") and sectionIsCharacter(scene, "character2"):
                         finalSections[-1]["content"][-1]["scene"].append({
                             "type": "DUAL_DIALOGUE",
                             "content": {
