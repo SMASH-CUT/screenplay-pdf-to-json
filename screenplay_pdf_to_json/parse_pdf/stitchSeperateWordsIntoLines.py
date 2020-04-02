@@ -27,8 +27,6 @@ def stitchSeperateWordsIntoLines(script, pageStart):
                 }
                 dialogueStitch[-1]["content"].append(content)
             elif i > 0 and content["segment"][0]["y"] == page["content"][i-1]["segment"][0]["y"]:
-                print(content)
-                print(contentStitch)
                 contentStitch["segment"][-1]["text"] += " " + \
                     getJoinedText(content["segment"])
             else:
