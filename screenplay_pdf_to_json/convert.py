@@ -3,15 +3,14 @@ import argparse
 
 from screenplay_pdf_to_json.parse_pdf import parsePdf, groupDualDialogues, groupSections, sortLines, cleanPage, getTopTrends, stitchSeperateWordsIntoLines, processInitialPages
 
-
 def convert(scriptFile, pageStart):
     # parse script based on pdfminer.six. Lacking documentation so gotta need some adjustments in our end :(
     newScript = parsePdf(scriptFile)["pdf"]
 
     firstPagesDict = processInitialPages(newScript)
 
-    firstPages = firstPagesDict[0]
-    skipPage = pageStart if pageStart else firstPagesDict[1]
+    firstPages = firstPagesDict["firstPages"]
+    skipPage = pageStart if pageStart else firstPagesDict["pageStart"]
 
     # remove any useless line (page number, empty line, special symbols)
     newScript = cleanPage(newScript, skipPage)

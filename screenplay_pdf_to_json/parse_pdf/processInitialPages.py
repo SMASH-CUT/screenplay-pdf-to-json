@@ -30,4 +30,7 @@ def processInitialPages(script):
     firstPages = [x for x in firstPages]
     for page in firstPages:
         page["type"] = "FIRST_PAGES"
-    return (firstPages, i)
+    return {
+        "firstPages": firstPages,
+        "pageStart": i
+    }

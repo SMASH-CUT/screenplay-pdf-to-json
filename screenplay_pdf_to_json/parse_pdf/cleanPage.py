@@ -1,4 +1,5 @@
 import re
+from screenplay_pdf_to_json.utils.headingHelpers import isHeading
 
 
 def cleanPage(script, pageStart):
@@ -17,18 +18,19 @@ def cleanPage(script, pageStart):
 
         for i, content in enumerate(firstRound):
             text = content["text"].strip()
-            if "TV Calling - For educational purposes only" in text:
-                continue
-            elif (re.search(' \d{1,3}[.]?', text) or re.search('\d{1,2}\/\d{1,2}\/\d{2,4}', text)) and (i == 0 or i == len(content)-1):
-                continue
-            elif (re.match('(\d|l|i|I){1,3}[.]?(?![\w\d])', text.strip())) and len(text.strip()) < 5:
-                continue
-            elif re.search(r"^i{2,3}$", text) and (len(text.split()) < 2 or i == 0 or i == len(content)-1):
-                continue
-            elif re.search(r"([(]?CONTINUED[:)]{1,2})", text):
-                continue
-            elif re.match('i{2,3}', text.strip()):
-                continue
+            if not isHeading(content):
+                if "TV Calling - For educational purposes only" in text:
+                    continue
+                elif (re.search(' \d{1,3}[.]?', text) or re.search('\d{1,2}\/\d{1,2}\/\d{2,4}', text)) and (i == 0 or i == len(content)-1):
+                    continue
+                elif (re.match('(\d|l|i|I){1,3}[.]?(?![\w\d])', text.strip())) and len(text.strip()) < 5:
+                    continue
+                elif re.search(r"^i{2,3}$", text) and (len(text.split()) < 2 or i == 0 or i == len(content)-1):
+                    continue
+                elif re.search(r"([(]?CONTINUED[:)]{1,2})", text):
+                    continue
+                elif re.match('i{2,3}', text.strip()):
+                    continue
             dialogueStitch[-1]["content"].append(content)
     removeDuplicates(dialogueStitch)
     return dialogueStitch
