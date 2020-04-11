@@ -92,7 +92,7 @@ def combineCategories(newScript, pageStart):
                 elif sectionSameTypeAsPrevious and scene["type"] == "ACTION":
                     # if part of same paragraph, concat text
                     if (scene["content"][0]["y"] - finalSections[-1]["content"][-1]["scene"][-1]["content"][-1]["y"] <= 16):
-                        finalSections[-1]["content"][-1]["scene"][-1]["content"][-1]["text"] += scene["content"][0]["text"]
+                        finalSections[-1]["content"][-1]["scene"][-1]["content"][-1]["text"] += " " + scene["content"][0]["text"]
                         finalSections[-1]["content"][-1]["scene"][-1]["content"][-1]["y"] = scene["content"][0]["y"]
                     # else, just append entire text
                     else:

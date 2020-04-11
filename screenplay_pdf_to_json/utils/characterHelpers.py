@@ -35,7 +35,7 @@ def isCharacter(currentContent):
         return False
 
     # check if header?
-    if any(x in text for x in ["--", "!"]):
+    if any(x in text for x in ["--", "!", "?", "@", "%"]):
         return False
 
     if any(x in text[-1] for x in ["-", "."]):

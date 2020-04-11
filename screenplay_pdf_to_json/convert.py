@@ -21,9 +21,11 @@ def convert(scriptFile, pageStart):
     # group dual dialogues into the same segments
     newScript = groupDualDialogues(newScript, skipPage)
 
+
     # because of pdfminer's imperfections, we have to stitch words into what's supposed to be part of the same line
     newScript = stitchSeperateWordsIntoLines(newScript, skipPage)
 
+    
     topTrends = getTopTrends(newScript)
 
     # group into sections based on type

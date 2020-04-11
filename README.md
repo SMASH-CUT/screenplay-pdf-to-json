@@ -212,6 +212,10 @@ python -m pytest tests/
 
 ```
 
+## Notes
+
+- Do `poetry install` OUTSIDE of poetry shell before entering the shell and running the script.
+
 ## Todos
 
 - [x] Add unit tests
