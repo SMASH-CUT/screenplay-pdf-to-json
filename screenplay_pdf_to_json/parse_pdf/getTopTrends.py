@@ -11,4 +11,8 @@ def getTopTrends(script):
             else:
                 trends[roundedX] += 1
     trends = sorted(trends.items(), key=operator.itemgetter(0), reverse=False)
+
+    while trends[0][1] < 10:
+        trends.pop(0)
+
     return trends
