@@ -28,10 +28,12 @@ def test_correct_characrters():
     characters = [
         'JOHN',
         'JEFFERSON (INTO P.A.)'
+        'D.A.'
     ]
     characters = setupMultiplecharacters(characters)
 
     expectedcharacters = [
+        True,
         True,
         True
     ]
@@ -42,11 +44,15 @@ def test_correct_characrters():
 def test_incorrect_characrters():
     characters = [
         'DOING?',
+        'CUT BACK TO:',
+        'FADE TO BLACK:'
     ]
     characters = setupMultiplecharacters(characters)
 
     expectedcharacters = [
         False,
+        False,
+        False
     ]
 
     assertGroup(characters, expectedcharacters)

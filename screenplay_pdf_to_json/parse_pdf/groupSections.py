@@ -10,6 +10,7 @@ def groupSections(topTrends, script, pageStart):
     """group types into the same sections"""
 
     newScript = categorizeSections(topTrends, script, pageStart)
+
     newScript = combineCategories(newScript, pageStart)
     newScript = divideParentheticals(newScript)
     return newScript
@@ -146,7 +147,7 @@ def categorizeSections(topTrends, script, pageStart):
             text = content["segment"][0]["text"]
 
             # booleans
-            isTransition = content["segment"][0]["x"] >= 420 or "FADE IN:" in text
+            isTransition = content["segment"][0]["x"] >= 420 or "FADE" in text or "CUT" in text or "TO:" in text
             isAction = abs(x - topTrends[0][0]) <= 15
 
             if isHeading(content["segment"][0]):
