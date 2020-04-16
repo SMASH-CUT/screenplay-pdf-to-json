@@ -1,5 +1,6 @@
 import re
 from screenplay_pdf_to_json.utils.headingHelpers import isHeading
+from screenplay_pdf_to_json.utils.characterHelpers import isCharacter
 
 
 def cleanPage(script, pageStart):
@@ -18,7 +19,7 @@ def cleanPage(script, pageStart):
 
         for i, content in enumerate(firstRound):
             text = content["text"].strip()
-            if not isHeading(content):
+            if not isHeading(content) and not (i > 0 and isCharacter(firstRound[i-1])):
                 if "TV Calling - For educational purposes only" in text:
                     continue
                 elif (re.search(' \d{1,3}[.]?', text) or re.search('\d{1,2}\/\d{1,2}\/\d{2,4}', text)) and (i == 0 or i == len(content)-1):
