@@ -18,9 +18,6 @@ def convert(scriptFile, pageStart):
     # remove any useless line (page number, empty line, special symbols)
     newScript = cleanPage(newScript, skipPage)
 
-    file1 = open('./bibi.json', 'w+')
-    json.dump(newScript, file1, indent=4, ensure_ascii=False)
-
     # sort lines by y. If y is the same, then sort by x
     newScript = sortLines(newScript, skipPage)
 
