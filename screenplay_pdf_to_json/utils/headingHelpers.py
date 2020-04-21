@@ -12,8 +12,27 @@ def isHeading(content):
 
 
 def extractTime(text):
+    timeVocab = "|".join([
+        "NIGHT",
+        "AFTERNOON",
+        "MORNING",
+        "DAYS",
+        "DAY",
+        "NIGHT",
+        "DAYS",
+        "DAY",
+        "ANOTHER DAY",
+        "LATER",
+        "NIGHT",
+        "SAME",
+        "CONTINUOUS",
+        "MOMENTS LATER",
+        "LATER",
+        "SUNSET",
+        ])
+    regex = '[-,]?[ ]?(DAWN|DUSK|((LATE|EARLY) )?' + timeVocab + ')|\d{4}'
     findTime = re.search(
-        '[-,]?[ ]?(DAWN|DUSK|((LATE|EARLY) )?(NIGHT|AFTERNOON|MORNING)|DAYS|DAY|NIGHT|DAYS|DAY|LATER|NIGHT|SAME|CONTINUOUS|(MOMENTS LATER)|SUNSET)|\d{4}', text)
+        regex, text)
 
     time = list(filter(lambda x: len(x) > 0, [x.strip(
         "-,. ") for x in text[findTime.start():].split()])) if findTime else None
@@ -21,8 +40,6 @@ def extractTime(text):
 
 
 def extractHeading(text):
-    def stripWord(textArr): return [x.strip() for x in textArr]
-
     """
         EXT.?/INT.?
         INT.?/EXT.?
@@ -36,9 +53,16 @@ def extractHeading(text):
         '((?:.* )?(?:EXT[\\.]?\\/INT[\\.]?|INT[\\.]?\\/EXT[\\.]?|INT(?:\\.| --)|EXT(?:\\.| --)))', text).groups()[0]
     time = extractTime(text)
 
+
     location = text.replace(region, "")
     if time and len(time) > 0:
         location = location[:location.index(time[0])]
+
+    if len(region) > 0 and region[0].isdigit():
+        region = region.lstrip('0123456789.- ')
+        location = location.rstrip('0123456789.- ') if location else location
+    time = time[:-1] if time and time[-1].isdigit() else time
+    
 
     return {
         "region": region,

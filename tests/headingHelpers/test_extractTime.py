@@ -36,6 +36,7 @@ def test_multiple_times():
         'INT. GERMAN BEER HALL. NIGHT. 1868.',
         'EXT. PHILADELPHIA STREET - NIGHT (FLASHBACK)',
         'INT. CAMP LEHIGH, SHIELD FACILITY, PEGGY’S OFC. - DAY (1970)',
+        'EXT. MINE SHAFT-ANOTHER DAY.',
     ]
     headings = setupMultipleHeadings(headings)
 
@@ -43,6 +44,7 @@ def test_multiple_times():
         ['NIGHT', '1868'],
         ['NIGHT', '(FLASHBACK)'],
         ['DAY', '(1970)'],
+        ['ANOTHER', 'DAY'],
     ]
 
     assertGroup(headings, expectedHeadings)
@@ -53,6 +55,7 @@ def test_one_time():
                 'INT. WATERFORD HOUSE - BEDROOM - DAY',
                 'EXT. COURTHOUSE PARKING LOT - SUNSET',
                 'THE PAST. INT. CONCORD. MARCH HOUSE. JO & MEG’S ROOM. 1861.',
+                'INT. SHAFT. LATER.',
                 ]
     headings = setupMultipleHeadings(headings)
 
@@ -61,6 +64,7 @@ def test_one_time():
         ['DAY'],
         ['SUNSET'],
         ['1861'],
+        ['LATER'],
     ]
 
     assertGroup(headings, expectedHeadings)

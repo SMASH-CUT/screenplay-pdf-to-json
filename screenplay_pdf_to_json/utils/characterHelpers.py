@@ -19,7 +19,7 @@ def extractCharacter(currentContent):
 
 def isCharacter(currentContent):
     text = currentContent["text"]
-    characterNameEnum = ["V.O", "O.S", "CONT'D"]
+    characterNameEnum = ["(V.O)", "(O.S)", "CONT'D"]
 
     if isParenthetical(text):
         return False
@@ -31,14 +31,18 @@ def isCharacter(currentContent):
     if not text[0].isalpha() and "\"" not in text[0]:
         return False
 
-    if text != text.upper():
+    characterName = (text[0: text.index("(")] if "(" in text else text)
+    if characterName != characterName.upper():
         return False
 
     # check if header?
-    if any(x in text for x in ["--", "!", "?", "@", "%", "..."]):
+    if any(x in text for x in ["--", "!", "?", "@", "%", "...", "THE END"]):
         return False
 
     if any(x in text[-1] for x in ["-"]):
+        return False
+
+    if currentContent["x"] < 225:
         return False
 
     if any(x in text for x in [":"]):

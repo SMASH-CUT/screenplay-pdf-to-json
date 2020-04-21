@@ -44,6 +44,7 @@ def test_multiple_locaitons():
 def test_one_location():
     headings = [
         'INT. GERMAN BEER HALL. NIGHT. 1868.',
+        'INT. SHAFT. LATER.',
     ]
     headings = setupMultipleHeadings(headings)
 
@@ -51,6 +52,10 @@ def test_one_location():
         {
             "region": "INT.",
             "location": "GERMAN BEER HALL",
+        },
+        {
+            "region": "INT.",
+            "location": "SHAFT",
         },
     ]
 

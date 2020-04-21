@@ -15,11 +15,15 @@ def cleanPage(script, pageStart):
             text = content["text"].strip()
             if text == "" or text == "*" or text == "." or text == "\\." or text == "\\" or text == "'":
                 continue
+            if content["x"] < 65 or content["x"] > 500:
+                    continue
             firstRound.append(content)
 
         for i, content in enumerate(firstRound):
             text = content["text"].strip()
-            if not isHeading(content) and not (i > 0 and isCharacter(firstRound[i-1])):
+            if "Okay, so how many trees are on tha" in text:
+                x = 0
+            if not isHeading(content) and content["y"] < 80 and content["x"] < 100:
                 if "TV Calling - For educational purposes only" in text:
                     continue
                 elif (re.search(' \d{1,3}[.]?', text) or re.search('\d{1,2}\/\d{1,2}\/\d{2,4}', text)) and (i == 0 or i == len(content)-1):
@@ -32,6 +36,7 @@ def cleanPage(script, pageStart):
                     continue
                 elif re.match('i{2,3}', text.strip()):
                     continue
+
             dialogueStitch[-1]["content"].append(content)
     removeDuplicates(dialogueStitch)
     return dialogueStitch
