@@ -6,11 +6,9 @@ from screenplay_pdf_to_json.utils import isCharacter, isParenthetical, extractCh
 LAST_SCENE = -2
 
 
-def groupSections(topTrends, script, pageStart):
+def groupSections(topTrends, script, pageStart, includeSceneNumber):
     """group types into the same sections"""
-
-    newScript = categorizeSections(topTrends, script, pageStart)
-
+    newScript = categorizeSections(topTrends, script, pageStart, includeSceneNumber)
     newScript = combineCategories(newScript, pageStart)
     newScript = divideParentheticals(newScript)
     return newScript
@@ -52,7 +50,7 @@ def combineCategories(newScript, pageStart):
 
         for i, content in enumerate(page["content"]):
             finalSections[-1]["content"].append({
-                "scene_number": content["scene_number"],
+                # "scene_number": content["scene_number"],
                 "scene_info": content["scene_info"],
                 "scene": []
             })
@@ -111,7 +109,7 @@ def getJoinedText(textArr):
                      for arr in textArr])
 
 
-def categorizeSections(topTrends, script, pageStart):
+def categorizeSections(topTrends, script, pageStart, includeSceneNumber):
     """categorize lines into types"""
 
     finalSections = []
@@ -121,11 +119,17 @@ def categorizeSections(topTrends, script, pageStart):
             continue
         finalSections.append({"page": page["page"], "content": []})
 
-        finalSections[-1]["content"].append({
-            "scene_number": sceneNumber,
-            "scene_info": finalSections[LAST_SCENE]["content"][-1]["scene_info"] if len(finalSections) >= 2 else None,
-            "scene": []
-        })
+        if includeSceneNumber:
+            finalSections[-1]["content"].append({
+                "scene_number": sceneNumber,
+                "scene_info": finalSections[LAST_SCENE]["content"][-1]["scene_info"] if len(finalSections) >= 2 else None,
+                "scene": []
+            })
+        else:
+            finalSections[-1]["content"].append({
+                "scene_info": finalSections[LAST_SCENE]["content"][-1]["scene_info"] if len(finalSections) >= 2 else None,
+                "scene": []
+            })
 
         characterOccurred = False
         for i, content in enumerate(page["content"]):

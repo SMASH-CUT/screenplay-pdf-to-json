@@ -1,7 +1,9 @@
 import json
 import argparse
+import ujson
 
 from screenplay_pdf_to_json.parse_pdf import parsePdf, groupDualDialogues, groupSections, sortLines, cleanPage, getTopTrends, stitchSeperateWordsIntoLines, processInitialPages
+from screenplay_pdf_to_json.utils import cleanScript
 
 def convert(scriptFile, pageStart):
     # parse script based on pdfminer.six. Lacking documentation so gotta need some adjustments in our end :(
@@ -29,7 +31,9 @@ def convert(scriptFile, pageStart):
     topTrends = getTopTrends(newScript)
 
     # group into sections based on type
-    newScript = groupSections(topTrends, newScript, skipPage)
+    newScript = groupSections(topTrends, newScript, skipPage, False)
+
+    newScript = cleanScript(newScript, False)
 
     newScript = firstPages + newScript
     scriptFile.close()
@@ -52,4 +56,5 @@ if __name__ == "__main__":
     pageStart = args.start
     newScript = convert(scriptFile, pageStart)
     file1 = open('./result.json', 'w+')
-    json.dump(newScript, file1, indent=4, ensure_ascii=False)
+    ujson.dump(newScript, file1, indent=4, ensure_ascii=False)
+
