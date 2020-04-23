@@ -1,12 +1,13 @@
 [tool.poetry]
 name = "screenplay_pdf_to_json"
-version = "0.3.1"
+version = "0.3.3"
 description = ""
 authors = ["VVNoodle <brickkace@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
 "pdfminer.six" = "^20200124"
+ujson = "^2.0.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.4.1"

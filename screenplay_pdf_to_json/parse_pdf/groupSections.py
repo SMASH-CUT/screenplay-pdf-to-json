@@ -119,17 +119,11 @@ def categorizeSections(topTrends, script, pageStart, includeSceneNumber):
             continue
         finalSections.append({"page": page["page"], "content": []})
 
-        if includeSceneNumber:
-            finalSections[-1]["content"].append({
-                "scene_number": sceneNumber,
-                "scene_info": finalSections[LAST_SCENE]["content"][-1]["scene_info"] if len(finalSections) >= 2 else None,
-                "scene": []
-            })
-        else:
-            finalSections[-1]["content"].append({
-                "scene_info": finalSections[LAST_SCENE]["content"][-1]["scene_info"] if len(finalSections) >= 2 else None,
-                "scene": []
-            })
+        finalSections[-1]["content"].append({
+            # "scene_number": sceneNumber,
+            "scene_info": finalSections[LAST_SCENE]["content"][-1]["scene_info"] if len(finalSections) >= 2 else None,
+            "scene": []
+        })
 
         characterOccurred = False
         for i, content in enumerate(page["content"]):
@@ -158,13 +152,13 @@ def categorizeSections(topTrends, script, pageStart, includeSceneNumber):
                 sceneNumber += 1
                 if len(finalSections[-1]["content"][-1]["scene"]) == 0:
                     finalSections[-1]["content"][-1] = {
-                        "scene_number": sceneNumber,
+                        # "scene_number": sceneNumber,
                         "scene_info": extractHeading(content["segment"][0]["text"]),
                         "scene": []
                     }
                 else:
                     finalSections[-1]["content"].append({
-                        "scene_number": sceneNumber,
+                        # "scene_number": sceneNumber,
                         "scene_info": extractHeading(content["segment"][0]["text"]),
                         "scene": []
                     })
