@@ -85,9 +85,9 @@ def combineCategories(newScript, pageStart):
                             scene["content"]["character2"])
 
                 elif scene["type"] == "DIALOGUE" and content["scene"][j-1]["type"] == "CHARACTER":
-                    finalSections[-1]["content"][-1]["scene"][-1]["content"]["dialogue"] += scene["text"]
+                    finalSections[-1]["content"][-1]["scene"][-1]["content"]["dialogue"] += scene["text"].strip()
                 elif sectionSameTypeAsPrevious and scene["type"] == "DIALOGUE":
-                    finalSections[-1]["content"][-1]["scene"][-1]["content"]["dialogue"] += " " + scene["text"]
+                    finalSections[-1]["content"][-1]["scene"][-1]["content"]["dialogue"] += " " + scene["text"].strip()
                 elif sectionSameTypeAsPrevious and scene["type"] == "ACTION":
                     # if part of same paragraph, concat text
                     if (scene["content"][0]["y"] - finalSections[-1]["content"][-1]["scene"][-1]["content"][-1]["y"] <= 16):
@@ -145,8 +145,8 @@ def categorizeSections(topTrends, script, pageStart, includeSceneNumber):
             text = content["segment"][0]["text"]
 
             # booleans
-            isTransition = content["segment"][0]["x"] >= 420 or "FADE" in text or "CUT" in text or "TO:" in text
             isAction = abs(x - topTrends[0][0]) <= 15
+            isTransition = content["segment"][0]["x"] >= 420 or "FADE" in text or ("CUT" in text and not isAction) or "TO:" in text
 
             if isHeading(content["segment"][0]):
                 sceneNumber += 1

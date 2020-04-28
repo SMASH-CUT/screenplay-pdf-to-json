@@ -12,15 +12,16 @@ def cleanPage(script, pageStart):
 
         firstRound = []
         for content in page["content"]:
-            text = content["text"].strip()
+            text = re.sub("\s{2}", " ", content["text"].strip())
             if text == "" or text == "*" or text == "." or text == "\\." or text == "\\" or text == "'":
                 continue
-            if content["x"] < 65 or content["x"] > 500:
-                    continue
+            if content["x"] < 65 or content["x"] > 500 or content["y"] <= 50:
+                continue
+            content["text"] = text
             firstRound.append(content)
 
         for i, content in enumerate(firstRound):
-            text = content["text"].strip()
+            text = content["text"]
             if "Okay, so how many trees are on tha" in text:
                 x = 0
             if not isHeading(content) and content["y"] < 80 and content["x"] < 100:
@@ -28,13 +29,13 @@ def cleanPage(script, pageStart):
                     continue
                 elif (re.search(' \d{1,3}[.]?', text) or re.search('\d{1,2}\/\d{1,2}\/\d{2,4}', text)) and (i == 0 or i == len(content)-1):
                     continue
-                elif (re.match('(\d|l|i|I){1,3}[.]?(?![\w\d])', text.strip())) and len(text.strip()) < 5:
+                elif (re.match('(\d|l|i|I){1,3}[.]?(?![\w\d])', text)) and len(text.strip()) < 5:
                     continue
-                elif re.search(r"^i{2,3}$", text) and (len(text.split()) < 2 or i == 0 or i == len(content)-1):
+                elif re.search(r"^i{2,3}$", text) and (len(text) < 2 or i == 0 or i == len(content)-1):
                     continue
                 elif re.search(r"([(]?CONTINUED[:)]{1,2})", text):
                     continue
-                elif re.match('i{2,3}', text.strip()):
+                elif re.match('i{2,3}', text):
                     continue
 
             dialogueStitch[-1]["content"].append(content)

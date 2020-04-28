@@ -42,7 +42,7 @@ def isCharacter(currentContent):
     if any(x in text[-1] for x in ["-"]):
         return False
 
-    if currentContent["x"] < 225:
+    if currentContent["x"] < 150:
         return False
 
     if any(x in text for x in [":"]):

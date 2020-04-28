@@ -36,8 +36,7 @@ def parsePdf(scriptFile):
 
     # BEGIN LAYOUT ANALYSIS
     # Set parameters for analysis.
-    laparams = LAParams(word_margin=100, boxes_flow=1,
-                        line_margin=0.3)
+    laparams = LAParams()
 
     # Create a PDF page aggregator object.
     device = PDFPageAggregator(rsrcmgr, laparams=laparams)

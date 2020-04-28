@@ -34,8 +34,10 @@ def groupDualDialogues(script, pageStart):
 
             previousIsCharacter = prevContent and isCharacter(prevContent)
 
+            nextContentIsCharacter = nextContent and isCharacter(nextContent)
+
             # if current line and next line is character, and previous line is not character (3 characters in a row is impossible)
-            if not previousIsCharacter and  nextContent and isCharacter(content) and isCharacter(nextContent):
+            if not previousIsCharacter and isCharacter(content) and nextContentIsCharacter:
                 isDualDialogue = 1
 
             # if next content is the same line, and isDualDialogue > 0, then it's a dual dialogue

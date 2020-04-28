@@ -9,6 +9,7 @@ def convert(scriptFile, pageStart):
     # parse script based on pdfminer.six. Lacking documentation so gotta need some adjustments in our end :(
     newScript = parsePdf(scriptFile)["pdf"]
 
+
     firstPagesDict = processInitialPages(newScript)
 
     firstPages = firstPagesDict["firstPages"]
@@ -16,13 +17,12 @@ def convert(scriptFile, pageStart):
 
     # remove any useless line (page number, empty line, special symbols)
     newScript = cleanPage(newScript, skipPage)
-   
+
     # sort lines by y. If y is the same, then sort by x
     newScript = sortLines(newScript, skipPage)
 
     # group dual dialogues into the same segments
     newScript = groupDualDialogues(newScript, skipPage)
-
 
     # because of pdfminer's imperfections, we have to stitch words into what's supposed to be part of the same line
     newScript = stitchSeperateWordsIntoLines(newScript, skipPage)
