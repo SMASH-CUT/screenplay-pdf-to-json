@@ -57,149 +57,86 @@ print(scriptJSON)
 ```js
 
 [{
-
-// page number
-
-"page": 1,
-
-
-
-// scene info
-
-"scene_info": {
-
-"region":  "EXT.",  //region of scene [EXT., INT., EXT./INT, INT./EXT]
-
-"location":  "VILLA",
-
-"time": ["DAY"] // time of scene [DAY, NIGHT, DAWN, DUSK, ...]
-
-},
-
-"scene": [{
-
-"type":  "ACTION",  // type of snippet [ACTION, CHARACTER, TRANSITION, DUAL_DIALOGUE]
-
-"content": {...} // content differs based on ACTION
-
+  // page number
+  "page": 1,
+  // scene info
+  "scene_info": {
+    "region":  "EXT.",  //region of scene [EXT., INT., EXT./INT, INT./EXT]
+    "location":  "VILLA",
+    "time": ["DAY"] // time of scene [DAY, NIGHT, DAWN, DUSK, ...]
+  },
+  "scene": [{
+    "type":  "ACTION",  // type of snippet [ACTION, CHARACTER, TRANSITION, DUAL_DIALOGUE]
+    "content": {...} // content differs based on ACTION
+  }, {...}]
 }, {...}]
-
-
-
-}, {...}]
-
 ```
 
-- The initial pages of a screenplay that's a part of the title page, TOC, cast list, ... is included as type `FIRST_PAGES`.
+- Initial pages of a screenplay that's part of the title page, TOC, cast list, ... is included as type `FIRST_PAGES`.
 
 - It's really an array of dictionaries rather than a JSON object.
 
 ### Type Content Structure
 
 - ACTION
-
 ```js
-
 "content": [{
-
-"text":  "an action paragraph",
-
-"x": 108,
-
-"y": 120 // Y-axis of last line in paragraph
-
+  "text":  "an action paragraph",
+  "x": 108,
+  "y": 120 // Y-axis of last line in paragraph
 }, {...}]
 
 ```
 
 - CHARACTER
-
 ```js
-
 "content": {
-
-"character":  "MILES",
-
-"modifier": null,  // V.O, O.S., and more. null if no modifier
-
-"dialogue": [
-
-"Hey good morning. How you doing?... Weekend was short, huh? ",
-
-"(he turns to another kid)",  //parentheticals are seperated
-
-" Oh my gosh this is embarrassing, we wore the same jacket--"
-
-]
-
+  "character":  "MILES",
+  "modifier": null,  // V.O, O.S., and more. null if no modifier
+  "dialogue": [
+  "Hey good morning. How you doing?... Weekend was short, huh? ",
+  "(he turns to another kid)",  //parentheticals are seperated
+  " Oh my gosh this is embarrassing, we wore the same jacket--"
+  ]
 }
 
 ```
 
 - DUAL_DIALOGUE
-
 ```js
 
 "content": {
-
-"character1": {
-
-"character": {
-
-"character":  "PETER",
-
-"modifier": null
-
-},
-
-"dialogue": [
-
-"(groggy)",
-
-" Why are you trying to kill me?--"
-
-]
-
-},
-
-"character2": {
-
-"character": {
-
-"character":  "MILES",
-
-"modifier":  "CONT'D"
-
-},
-
-"dialogue": [
-
-"--I’m not! I’m trying to save you!"
-
-]
-
-}
-
+  "character1": {
+    "character": {
+      "character":  "PETER",
+      "modifier": null
+    },
+    "dialogue": [
+      "(groggy)",
+      " Why are you trying to kill me?--"
+    ]
+  },
+  "character2": {
+    "character": {
+      "character":  "MILES",
+      "modifier":  "CONT'D"
+    },
+    "dialogue": [
+    "--I’m not! I’m trying to save you!"
+    ]
+  }
 }
 
 ```
 
 - TRANSITION
-
 ```js
-
 "content": {
-
-"text":  "SMASH TO:",
-
-"metadata": {
-
-"x": 448,
-
-"y": 720
-
-}
-
+  "text":  "SMASH TO:",
+  "metadata": {
+    "x": 448,
+    "y": 720
+  }
 }
 
 ```
