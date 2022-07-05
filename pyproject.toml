@@ -7,7 +7,7 @@ authors = ["VVNoodle <brickkace@gmail.com>"]
 [tool.poetry.dependencies]
 python = "^3.7"
 "pdfminer.six" = "^20200124"
-ujson = "^2.0.3"
+ujson = ">=2.0.3,<6.0.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.4.1"
