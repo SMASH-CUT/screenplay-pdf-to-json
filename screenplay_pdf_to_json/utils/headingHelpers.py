@@ -1,6 +1,6 @@
 import re
 
-headingEnum = ["EXT./INT.", "EXT./INT.", "INT./EXT.", "EXT/INT","INT/EXT", "INT.", "EXT.", "INT --", "EXT --"]
+headingEnum = ["EXT./INT.", "EXT./INT.", "INT./EXT.", "EXT/INT","INT/EXT", "INT.", "EXT.", "INT --", "EXT --", "I/E."]
 
 
 def isHeading(content):
@@ -48,9 +48,10 @@ def extractHeading(text):
         INT.
         EXT --
         INT --
+        I/E.
     """
     region = re.search(
-        '((?:.* )?(?:EXT[\\.]?\\/INT[\\.]?|INT[\\.]?\\/EXT[\\.]?|INT(?:\\.| --)|EXT(?:\\.| --)))', text).groups()[0]
+        r'((?:.* )?(?:EXT[\.]?\\/INT[\.]?|INT[\.]?\/EXT[\.]?|INT(?:\.| --)|EXT(?:\.| --)|I\/E\.))', text).groups()[0]
     time = extractTime(text)
 
 
